@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Account — GiveNet</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+
+  <style>
+    /* ── Page shell ─────────────────────────────────────────── */
+    body {
+      background-color: var(--color-secondary);
+      min-height: 100vh;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      padding: 0;
+      margin: 0;
+    }
+
+    .auth-page {
+      display: flex;
+      width: 100%;
+      min-height: 100vh;
+    }
+
+    @media (min-width: 992px) {
+      body { padding: var(--spacing-lg); }
+      .auth-page {
+        max-width: 980px;
+        margin: auto;
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-xl);
+        min-height: 100vh;
+        align-items: flex-start;
+      }
+    }
+
+    /* ── Hero panel ─────────────────────────────────────────── */
+    .auth-hero {
+      display: none;
+      flex: 0 0 45%;
+      flex-shrink: 0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    @media (min-width: 992px) {
+      .auth-hero { display: block; }
+    }
+
+    .auth-hero-photo {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+      z-index: 0;
+    }
+
+    .auth-hero-gradient {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 50%;
+      background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
+      z-index: 1;
+    }
+
+    .auth-hero-content {
+      position: absolute;
+      bottom: 32px;
+      left: 24px;
+      right: 24px;
+      z-index: 2;
+      color: var(--color-white);
+    }
+
+    .hero-stars {
+      display: flex;
+      gap: 3px;
+      color: var(--warning-500);
+      font-size: 14px;
+      margin-bottom: 14px;
+    }
+
+    .hero-quote {
+      font-size: var(--text-lg);
+      font-weight: 700;
+      line-height: 1.45;
+      margin-bottom: 20px;
+    }
+
+    .hero-avatars {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .avatar-stack { display: flex; }
+
+    .avatar-stack .av {
+      width: 34px;
+      height: 34px;
+      border-radius: var(--radius-full);
+      border: 2px solid var(--color-white);
+      object-fit: cover;
+      margin-left: -9px;
+      background-color: var(--primary-300);
+    }
+
+    .avatar-stack .av:first-child { margin-left: 0; }
+
+    .avatar-count {
+      width: 34px;
+      height: 34px;
+      border-radius: var(--radius-full);
+      border: 2px solid var(--color-white);
+      background-color: var(--primary-700);
+      color: var(--color-white);
+      font-size: var(--text-xs);
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: -9px;
+    }
+
+    .hero-member-text {
+      font-size: var(--text-sm);
+      color: rgba(255,255,255,0.88);
+    }
+
+    /* ── Form panel ─────────────────────────────────────────── */
+    .auth-form-panel {
+      flex: 1;
+      background-color: var(--color-white);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 44px 40px;
+      overflow-y: auto;
+    }
+
+    @media (max-width: 991px) {
+      .auth-form-panel { padding: 44px 24px; }
+    }
+
+    .auth-form-inner {
+      width: 100%;
+      max-width: 380px;
+      padding: 4px 0 32px;
+    }
+
+    /* Logo */
+    .auth-logo {
+      display: block;
+      margin-bottom: 28px;
+      text-decoration: none;
+    }
+
+    .auth-logo img { height: 44px; width: auto; }
+
+    /* Headings */
+    .auth-title {
+      font-size: var(--text-xl);
+      font-weight: 800;
+      color: var(--color-primary);
+      margin-bottom: 6px;
+      line-height: 1.2;
+    }
+
+    .auth-subtitle {
+      font-size: var(--text-sm);
+      color: var(--neutral-500);
+      margin-bottom: 24px;
+    }
+
+    /* Form group */
+    .form-group-gn { margin-bottom: 16px; }
+
+    /* Pill inputs */
+    .pill-input {
+      border-radius: var(--radius-full) !important;
+      padding-left: 20px !important;
+      padding-right: 20px !important;
+    }
+
+    .pill-input.with-icon-right { padding-right: 46px !important; }
+    .pill-input.with-icon-left  { padding-left: 42px !important; }
+
+    /* ── Role selector ───────────────────────────────────────── */
+    .role-selector-label {
+      display: block;
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--text-800);
+      margin-bottom: 10px;
+    }
+
+    .role-selector-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .role-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      padding: 14px 10px;
+      border: 1.5px solid var(--neutral-300);
+      border-radius: var(--radius-lg);
+      background-color: var(--color-white);
+      cursor: pointer;
+      transition: border-color var(--transition-base), background-color var(--transition-base);
+      font-family: inherit;
+      text-align: center;
+    }
+
+    .role-card:hover {
+      border-color: var(--color-primary);
+      background-color: var(--primary-50);
+    }
+
+    .role-card.selected {
+      border: 2px solid var(--color-primary);
+      background-color: var(--primary-50);
+    }
+
+    .role-card-icon {
+      font-size: 1.35rem;
+      color: var(--neutral-400);
+      transition: color var(--transition-base);
+    }
+
+    .role-card:hover .role-card-icon,
+    .role-card.selected .role-card-icon { color: var(--color-primary); }
+
+    .role-card-title {
+      font-size: var(--text-sm);
+      font-weight: 700;
+      color: var(--text-700);
+      transition: color var(--transition-base);
+    }
+
+    .role-card:hover .role-card-title,
+    .role-card.selected .role-card-title { color: var(--color-primary); }
+
+    .role-card-sub {
+      font-size: var(--text-xs);
+      color: var(--neutral-400);
+    }
+
+    .role-card.selected .role-card-sub { color: var(--primary-600); }
+
+    /* Location helper text */
+    .field-helper {
+      font-size: var(--text-xs);
+      color: var(--neutral-400);
+      margin-top: 5px;
+    }
+
+    /* Side-by-side password row */
+    .pw-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    /* Password match error */
+    .pw-match-error {
+      font-size: var(--text-xs);
+      color: var(--error-600);
+      margin-top: 4px;
+      display: block;
+    }
+
+    /* Terms row */
+    .terms-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .terms-row input[type="checkbox"] {
+      width: 15px;
+      height: 15px;
+      accent-color: var(--color-primary);
+      cursor: pointer;
+      flex-shrink: 0;
+      margin-top: 3px;
+    }
+
+    .terms-row label {
+      font-size: var(--text-sm);
+      color: var(--text-700);
+      cursor: pointer;
+      line-height: 1.5;
+    }
+
+    .terms-row label a {
+      color: var(--color-primary);
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .terms-row label a:hover { text-decoration: underline; }
+
+    /* Disabled button */
+    #submitBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Google button */
+    .btn-google {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 11px 20px;
+      border: 1.5px solid var(--neutral-300);
+      border-radius: var(--radius-full);
+      background-color: var(--color-white);
+      color: var(--text-800);
+      font-size: var(--text-base);
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background-color var(--transition-base), border-color var(--transition-base);
+    }
+
+    .btn-google:hover {
+      background-color: var(--gray-50);
+      border-color: var(--neutral-400);
+    }
+
+    /* Sign-in prompt */
+    .auth-alt-prompt {
+      text-align: center;
+      margin-top: 20px;
+      font-size: var(--text-sm);
+      color: var(--neutral-500);
+    }
+
+    .auth-alt-prompt a {
+      color: var(--color-primary);
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .auth-alt-prompt a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <div class="auth-page">
+
+    <!-- ── Hero Panel ─────────────────────────────────────── -->
+    <div class="auth-hero" aria-hidden="true">
+      <img
+        class="auth-hero-photo"
+        src="../assets/images/image 55 1.png"
+        alt=""
+      />
+      <div class="auth-hero-gradient"></div>
+      <div class="auth-hero-content">
+        <div class="hero-stars">
+          <i class="bi bi-star-fill"></i>
+          <i class="bi bi-star-fill"></i>
+          <i class="bi bi-star-fill"></i>
+          <i class="bi bi-star-fill"></i>
+          <i class="bi bi-star-fill"></i>
+        </div>
+        <p class="hero-quote">
+          "Generosity isn't just about giving. It's about creating a world where everyone belongs"
+        </p>
+        <div class="hero-avatars">
+          <div class="avatar-stack">
+            <img class="av" src="../assets/images/Avatar.png" alt="" />
+            <img class="av" src="../assets/images/Avatar (4) 1.png" alt="" />
+            <div class="av" style="background-color: var(--primary-400);"></div>
+            <span class="avatar-count">+2k</span>
+          </div>
+          <span class="hero-member-text">Join 20,000+ people in your community</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Form Panel ─────────────────────────────────────── -->
+    <div class="auth-form-panel">
+      <div class="auth-form-inner">
+
+        <a href="../index.html" class="auth-logo">
+          <img src="../assets/images/logo-small.png" alt="GiveNet" />
+        </a>
+
+        <h1 class="auth-title">Create your GiveNet Account</h1>
+        <p class="auth-subtitle">Join the community of givers and receivers</p>
+
+        <form id="signupForm" novalidate>
+
+          <!-- 1. Role selector — FIRST -->
+          <div class="form-group-gn">
+            <span class="role-selector-label">I want to join as a:</span>
+            <div class="role-selector-row" role="radiogroup" aria-label="Account type">
+              <button
+                type="button"
+                class="role-card"
+                id="roleDonor"
+                data-role="donor"
+                aria-pressed="false"
+              >
+                <i class="bi bi-box-seam role-card-icon"></i>
+                <span class="role-card-title">Donor</span>
+                <span class="role-card-sub">Share Items</span>
+              </button>
+              <button
+                type="button"
+                class="role-card"
+                id="roleRecipient"
+                data-role="recipient"
+                aria-pressed="false"
+              >
+                <i class="bi bi-hand-index-thumb role-card-icon"></i>
+                <span class="role-card-title">Recipient</span>
+                <span class="role-card-sub">Receive Items</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 2. Full Name -->
+          <div class="form-group-gn">
+            <label class="form-label-gn" for="fullName">Full Name</label>
+            <input
+              type="text"
+              id="fullName"
+              class="form-input-gn pill-input"
+              placeholder="Enter your full name"
+              autocomplete="name"
+            />
+          </div>
+
+          <!-- 3. Email -->
+          <div class="form-group-gn">
+            <label class="form-label-gn" for="email">Email Address</label>
+            <input
+              type="email"
+              id="email"
+              class="form-input-gn pill-input"
+              placeholder="name@example.com"
+              autocomplete="email"
+            />
+          </div>
+
+          <!-- 4. Neighbourhood/Location -->
+          <div class="form-group-gn">
+            <label class="form-label-gn" for="location">Neighbourhood/Location</label>
+            <div class="input-wrapper">
+              <i class="bi bi-geo-alt input-icon"></i>
+              <input
+                type="text"
+                id="location"
+                class="form-input-gn pill-input with-icon-left"
+                placeholder="E.g., Yaba, Lagos or Nsukka, Enugu"
+                autocomplete="address-level2"
+              />
+            </div>
+            <span class="field-helper">We use this to show you requests and donations near you</span>
+          </div>
+
+          <!-- 5. Password + Confirm side by side -->
+          <div class="pw-row">
+            <div>
+              <label class="form-label-gn" for="password">Password</label>
+              <div class="input-wrapper">
+                <input
+                  type="password"
+                  id="password"
+                  class="form-input-gn pill-input with-icon-right"
+                  placeholder="Min. 6 chars"
+                  autocomplete="new-password"
+                />
+                <button type="button" class="input-icon-right" id="togglePassword" aria-label="Show password">
+                  <i class="bi bi-eye" id="toggleIcon"></i>
+                </button>
+              </div>
+            </div>
+            <div>
+              <label class="form-label-gn" for="confirmPassword">Confirm</label>
+              <div class="input-wrapper">
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  class="form-input-gn pill-input with-icon-right"
+                  placeholder="Re-enter"
+                  autocomplete="new-password"
+                />
+                <button type="button" class="input-icon-right" id="toggleConfirm" aria-label="Show confirm password">
+                  <i class="bi bi-eye" id="toggleIconConfirm"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          <span class="pw-match-error" id="pwMatchError" aria-live="polite"></span>
+
+          <!-- 6. Terms -->
+          <div class="terms-row">
+            <input type="checkbox" id="terms" />
+            <label for="terms">
+              I agree to the
+              <a href="community-rules.html">Community Guidelines</a>
+              and
+              <a href="terms-of-service.html">Terms of Services</a>
+            </label>
+          </div>
+
+          <!-- 7. Submit -->
+          <button
+            type="submit"
+            class="btn-gn-primary btn-gn-full"
+            id="submitBtn"
+            style="border-radius: var(--radius-full);"
+            disabled
+          >
+            <span id="btnText">Sign Up</span>
+            <span id="btnSpinner" class="d-none">
+              <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            </span>
+          </button>
+
+        </form>
+
+        <!-- 8. Divider + Google -->
+        <div class="divider-or">or</div>
+
+        <button class="btn-google" type="button" id="googleBtn">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908C16.658 12.075 17.64 9.767 17.64 9.2z" fill="#4285F4"/>
+            <path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/>
+            <path d="M3.964 10.707A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.707V4.961H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.039l3.007-2.332z" fill="#FBBC05"/>
+            <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.961L3.964 6.293C4.672 4.166 6.656 3.58 9 3.58z" fill="#EA4335"/>
+          </svg>
+          Sign up with Google
+        </button>
+
+        <!-- 9. Sign-in link -->
+        <p class="auth-alt-prompt">
+          Already have an account? <a href="login.html">Sign In</a>
+        </p>
+
+      </div>
+    </div>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script type="module">
+    import { auth, db }          from '../js/firebase-config.js';
+    import { getUserRole }       from '../js/auth-guard.js';
+    import { showToast }         from '../js/utils.js';
+    import {
+      onAuthStateChanged,
+      createUserWithEmailAndPassword,
+      sendEmailVerification,
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import {
+      doc, setDoc, serverTimestamp,
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    // ── One-time auth check (replaces requireGuest) ───────────
+    // Only redirect if the user is already fully signed in with a
+    // Firestore document. Does NOT fire during the signup flow
+    // itself, so setDoc always completes before any redirect.
+    const _unsub = onAuthStateChanged(auth, async (user) => {
+      _unsub(); // run once only
+      if (!user) return;
+      if (!user.emailVerified) {
+        window.location.href = 'email-verification.html';
+        return;
+      }
+      const role = await getUserRole(user.uid);
+      if (role === null) return; // no doc yet — stay on page
+      if (role === 'admin')          window.location.href = 'admin-dashboard.html';
+      else if (role === 'recipient') window.location.href = 'recipient-dashboard.html';
+      else                           window.location.href = 'donor-dashboard.html';
+    });
+
+    // ── Refs ──────────────────────────────────────────────────
+    const fullNameInput   = document.getElementById('fullName');
+    const emailInput      = document.getElementById('email');
+    const locationInput   = document.getElementById('location');
+    const pwInput         = document.getElementById('password');
+    const confirmPwInput  = document.getElementById('confirmPassword');
+    const termsCheckbox   = document.getElementById('terms');
+    const submitBtn       = document.getElementById('submitBtn');
+    const btnText         = document.getElementById('btnText');
+    const btnSpinner      = document.getElementById('btnSpinner');
+    const pwMatchError    = document.getElementById('pwMatchError');
+    const roleCards       = document.querySelectorAll('.role-card');
+
+    let selectedRole = null;
+
+    // ── Role selection ────────────────────────────────────────
+    roleCards.forEach(card => {
+      card.addEventListener('click', () => {
+        roleCards.forEach(c => {
+          c.classList.remove('selected');
+          c.setAttribute('aria-pressed', 'false');
+        });
+        card.classList.add('selected');
+        card.setAttribute('aria-pressed', 'true');
+        selectedRole = card.dataset.role;
+        syncButton();
+      });
+    });
+
+    // ── Password toggles ──────────────────────────────────────
+    function makeToggle(inputId, btnId, iconId) {
+      const input = document.getElementById(inputId);
+      const btn   = document.getElementById(btnId);
+      const icon  = document.getElementById(iconId);
+      btn.addEventListener('click', () => {
+        const showing  = input.type === 'text';
+        input.type     = showing ? 'password' : 'text';
+        icon.className = showing ? 'bi bi-eye' : 'bi bi-eye-slash';
+        btn.ariaLabel  = showing ? 'Show password' : 'Hide password';
+      });
+    }
+
+    makeToggle('password',        'togglePassword', 'toggleIcon');
+    makeToggle('confirmPassword', 'toggleConfirm',  'toggleIconConfirm');
+
+    // ── Password match inline error ───────────────────────────
+    function checkPasswordMatch() {
+      const cpw = confirmPwInput.value;
+      if (cpw === '') {
+        pwMatchError.textContent = '';
+        confirmPwInput.classList.remove('is-invalid');
+        return true;
+      }
+      if (pwInput.value !== cpw) {
+        pwMatchError.textContent = 'Passwords do not match.';
+        confirmPwInput.classList.add('is-invalid');
+        return false;
+      }
+      pwMatchError.textContent = '';
+      confirmPwInput.classList.remove('is-invalid');
+      return true;
+    }
+
+    confirmPwInput.addEventListener('input', () => {
+      checkPasswordMatch();
+      syncButton();
+    });
+
+    // ── Gate button ───────────────────────────────────────────
+    function syncButton() {
+      const ready =
+        fullNameInput.value.trim()  !== '' &&
+        emailInput.value.trim()     !== '' &&
+        locationInput.value.trim()  !== '' &&
+        pwInput.value               !== '' &&
+        confirmPwInput.value        !== '' &&
+        selectedRole                !== null &&
+        termsCheckbox.checked;
+      submitBtn.disabled = !ready;
+    }
+
+    [fullNameInput, emailInput, locationInput, pwInput].forEach(el =>
+      el.addEventListener('input', syncButton)
+    );
+    termsCheckbox.addEventListener('change', syncButton);
+    syncButton();
+
+    // ── Firebase error messages ───────────────────────────────
+    function friendlyError(code) {
+      const map = {
+        'auth/email-already-in-use': 'An account with this email already exists.',
+        'auth/weak-password':        'Password must be at least 6 characters.',
+        'auth/invalid-email':        'Please enter a valid email address.',
+      };
+      return map[code] ?? 'Sign up failed. Please try again.';
+    }
+
+    function setLoading(on) {
+      submitBtn.disabled  = on;
+      btnText.textContent = on ? 'Creating account…' : 'Sign Up';
+      btnSpinner.classList.toggle('d-none', !on);
+    }
+
+    // ── Submit ────────────────────────────────────────────────
+    document.getElementById('signupForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const fullName = fullNameInput.value.trim();
+      const email    = emailInput.value.trim();
+      const location = locationInput.value.trim();
+      const password = pwInput.value;
+      const confirm  = confirmPwInput.value;
+
+      if (password.length < 6) {
+        showToast('Password must be at least 6 characters.', 'error');
+        return;
+      }
+
+      if (password !== confirm) {
+        pwMatchError.textContent = 'Passwords do not match.';
+        confirmPwInput.classList.add('is-invalid');
+        confirmPwInput.focus();
+        return;
+      }
+
+      setLoading(true);
+
+      try {
+        const { user } = await createUserWithEmailAndPassword(auth, email, password);
+
+        console.log('[signup] selectedRole =', selectedRole);
+
+        await setDoc(doc(db, 'users', user.uid), {
+          uid:         user.uid,
+          fullName,
+          email,
+          location,
+          role:        selectedRole,
+          rating:      0,
+          ratingCount: 0,
+          status:      'active',
+          createdAt:   serverTimestamp(),
+          bio:         '',
+          photoURL:    '',
+        });
+
+        await sendEmailVerification(user);
+
+        window.location.href = 'email-verification.html';
+
+      } catch (err) {
+        showToast(friendlyError(err.code), 'error');
+        setLoading(false);
+      }
+    });
+
+    document.getElementById('googleBtn').addEventListener('click', () => {
+      showToast('Google sign-in coming soon', 'warning');
+    });
+  </script>
+
+</body>
+</html>

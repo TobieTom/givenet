@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GiveNet — Share What You Can, Request What You Need</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+
+  <style>
+    /* ── Navbar ─────────────────────────────────────────────── */
+    .gn-navbar {
+      background-color: var(--color-white);
+      border-bottom: 1px solid var(--gray-200);
+      padding: 14px 0;
+    }
+
+    .gn-navbar .navbar-brand img {
+      height: 36px;
+      width: auto;
+    }
+
+    .gn-navbar .nav-link {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--text-700);
+      padding: 6px 14px;
+      transition: color var(--transition-base);
+    }
+
+    .gn-navbar .nav-link:hover,
+    .gn-navbar .nav-link.active {
+      color: var(--color-primary);
+    }
+
+    .btn-nav-signin {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-primary);
+      background: transparent;
+      border: 1.5px solid var(--color-primary);
+      border-radius: var(--radius-md);
+      padding: 8px 18px;
+      text-decoration: none;
+      transition: background-color var(--transition-base);
+    }
+
+    .btn-nav-signin:hover {
+      background-color: var(--primary-100);
+      color: var(--color-primary);
+      text-decoration: none;
+    }
+
+    .btn-nav-started {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-white);
+      background-color: var(--color-primary);
+      border: 1.5px solid var(--color-primary);
+      border-radius: var(--radius-md);
+      padding: 8px 18px;
+      text-decoration: none;
+      transition: background-color var(--transition-base);
+    }
+
+    .btn-nav-started:hover {
+      background-color: var(--primary-800);
+      color: var(--color-white);
+      text-decoration: none;
+    }
+
+    /* ── Hero ─────────────────────────────────────────────── */
+    .hero-section {
+      background-color: #FEFAF3;
+      padding: 96px 0 0;
+      overflow: hidden;
+    }
+
+    .hero-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: var(--text-xs);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--color-primary);
+      margin-bottom: 18px;
+    }
+
+    .hero-label i { color: var(--warning-500); }
+
+    .hero-heading {
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 800;
+      color: var(--text-900);
+      line-height: 1.15;
+      margin-bottom: 18px;
+    }
+
+    .hero-sub {
+      font-size: var(--text-base);
+      color: var(--neutral-500);
+      line-height: 1.7;
+      max-width: 420px;
+      margin-bottom: 32px;
+    }
+
+    .hero-cta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 36px;
+    }
+
+    .hero-social-proof {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .hero-avatars {
+      display: flex;
+    }
+
+    .hero-avatars .av {
+      width: 34px;
+      height: 34px;
+      border-radius: var(--radius-full);
+      border: 2px solid var(--color-white);
+      object-fit: cover;
+      margin-left: -10px;
+      background-color: var(--primary-300);
+    }
+
+    .hero-avatars .av:first-child { margin-left: 0; }
+
+    .hero-social-text {
+      font-size: var(--text-sm);
+      color: var(--neutral-500);
+    }
+
+    .hero-social-text strong { color: var(--text-800); }
+
+    .hero-img-wrap {
+      position: relative;
+    }
+
+    .hero-img-wrap img {
+      width: 100%;
+      border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+      display: block;
+      object-fit: cover;
+      max-height: 520px;
+    }
+
+    /* ── Hero floating badges ─────────────────────────────── */
+    .hero-badge {
+      position: absolute;
+      background-color: var(--color-white);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 160px;
+      z-index: 2;
+    }
+
+    .hero-badge-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .hero-badge-icon.green  { background-color: #dcfce7; }
+    .hero-badge-icon.brown  { background-color: var(--primary-100); }
+
+    .hero-badge-icon i { font-size: 1.1rem; }
+    .hero-badge-icon.green  i { color: var(--success-700); }
+    .hero-badge-icon.brown  i { color: var(--color-primary); }
+
+    .hero-badge-label {
+      font-size: var(--text-xs);
+      color: var(--neutral-500);
+      line-height: 1;
+      margin-bottom: 2px;
+    }
+
+    .hero-badge-value {
+      font-size: var(--text-base);
+      font-weight: 800;
+      color: var(--text-900);
+      line-height: 1;
+    }
+
+    /* Positions */
+    .hero-badge-top   { top: 24px;    right: -16px; }
+    .hero-badge-bottom { bottom: 48px; left: -16px; }
+
+    @media (max-width: 991px) {
+      .hero-badge-top   { top: 16px;  right: 12px;  }
+      .hero-badge-bottom { bottom: 20px; left: 12px; }
+    }
+
+    /* ── Why Choose GiveNet ───────────────────────────────── */
+    .section-why {
+      background-color: #FDF0D5;
+      padding: 72px 0;
+    }
+
+    .section-label {
+      font-size: var(--text-xs);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--color-primary);
+      margin-bottom: 8px;
+    }
+
+    .section-heading {
+      font-size: clamp(1.5rem, 3vw, 2rem);
+      font-weight: 800;
+      color: var(--text-900);
+      margin-bottom: 12px;
+    }
+
+    .section-sub {
+      font-size: var(--text-sm);
+      color: var(--neutral-500);
+      max-width: 520px;
+      margin: 0 auto 48px;
+      line-height: 1.7;
+    }
+
+    .feature-card {
+      background-color: var(--color-white);
+      border-radius: var(--radius-lg);
+      padding: 28px 24px;
+      height: 100%;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--gray-100);
+    }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-md);
+      background-color: var(--primary-100);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+
+    .feature-icon i {
+      font-size: 1.25rem;
+      color: var(--color-primary);
+    }
+
+    .feature-title {
+      font-size: var(--text-base);
+      font-weight: 700;
+      color: var(--text-900);
+      margin-bottom: 8px;
+    }
+
+    .feature-desc {
+      font-size: var(--text-sm);
+      color: var(--neutral-500);
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    /* ── How It Works ─────────────────────────────────────── */
+    .section-how {
+      background-color: var(--color-white);
+      padding: 72px 0;
+    }
+
+    .how-step {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      margin-bottom: 32px;
+    }
+
+    .how-step:last-child { margin-bottom: 0; }
+
+    .step-num {
+      flex-shrink: 0;
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-full);
+      background-color: var(--color-primary);
+      color: var(--color-white);
+      font-size: var(--text-sm);
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 2px;
+    }
+
+    .step-title {
+      font-size: var(--text-base);
+      font-weight: 700;
+      color: var(--text-900);
+      margin-bottom: 4px;
+    }
+
+    .step-desc {
+      font-size: var(--text-sm);
+      color: var(--neutral-500);
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .how-images {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 12px;
+      height: 100%;
+      min-height: 340px;
+    }
+
+    .how-images img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: var(--radius-lg);
+      display: block;
+    }
+
+    .how-images img:first-child {
+      grid-row: span 2;
+    }
+
+    /* ── Browse Items Preview ─────────────────────────────── */
+    .section-browse {
+      background-color: var(--bg-surface);
+      padding: 72px 0;
+    }
+
+    .item-card {
+      background-color: var(--color-white);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--gray-100);
+      transition: box-shadow var(--transition-base), transform var(--transition-base);
+    }
+
+    .item-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+
+    .item-card-img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .item-card-body {
+      padding: 16px;
+    }
+
+    .item-card-badges {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .item-card-title {
+      font-size: var(--text-base);
+      font-weight: 700;
+      color: var(--text-900);
+      margin-bottom: 8px;
+    }
+
+    .item-card-location {
+      font-size: var(--text-sm);
+      color: var(--neutral-400);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 14px;
+    }
+
+    .btn-view-item {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      border: 1.5px solid var(--color-primary);
+      border-radius: var(--radius-md);
+      background: transparent;
+      color: var(--color-primary);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      text-align: center;
+      text-decoration: none;
+      transition: background-color var(--transition-base);
+    }
+
+    .btn-view-item:hover {
+      background-color: var(--primary-100);
+      color: var(--color-primary);
+      text-decoration: none;
+    }
+
+    /* ── CTA Banner ───────────────────────────────────────── */
+    .section-cta {
+      background-color: var(--primary-800);
+      padding: 72px 0;
+      text-align: center;
+    }
+
+    .cta-heading {
+      font-size: clamp(1.5rem, 3vw, 2.2rem);
+      font-weight: 800;
+      color: var(--color-white);
+      margin-bottom: 14px;
+    }
+
+    .cta-sub {
+      font-size: var(--text-base);
+      color: rgba(255,255,255,0.75);
+      max-width: 520px;
+      margin: 0 auto 32px;
+      line-height: 1.7;
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-cta-primary {
+      padding: 13px 28px;
+      border-radius: var(--radius-md);
+      background-color: var(--color-white);
+      color: var(--color-primary);
+      font-size: var(--text-base);
+      font-weight: 700;
+      text-decoration: none;
+      border: 2px solid var(--color-white);
+      transition: background-color var(--transition-base);
+    }
+
+    .btn-cta-primary:hover {
+      background-color: var(--primary-100);
+      color: var(--color-primary);
+      text-decoration: none;
+    }
+
+    .btn-cta-outline {
+      padding: 13px 28px;
+      border-radius: var(--radius-md);
+      background-color: transparent;
+      color: var(--color-white);
+      font-size: var(--text-base);
+      font-weight: 700;
+      text-decoration: none;
+      border: 2px solid rgba(255,255,255,0.5);
+      transition: border-color var(--transition-base), background-color var(--transition-base);
+    }
+
+    .btn-cta-outline:hover {
+      border-color: var(--color-white);
+      background-color: rgba(255,255,255,0.1);
+      color: var(--color-white);
+      text-decoration: none;
+    }
+
+    /* ── Footer ───────────────────────────────────────────── */
+    .gn-footer {
+      background-color: #3D1F0E;
+      padding: 56px 0 28px;
+      color: rgba(255,255,255,0.75);
+    }
+
+    .footer-brand img {
+      height: 40px;
+      width: auto;
+      margin-bottom: 10px;
+      /* Make the logo visible on dark bg — uses CSS filter as it's an image, not color */
+      filter: brightness(0) invert(1);
+      opacity: 0.9;
+    }
+
+    .footer-tagline {
+      font-size: var(--text-sm);
+      color: rgba(255,255,255,0.55);
+      max-width: 220px;
+      line-height: 1.6;
+    }
+
+    .footer-col-title {
+      font-size: var(--text-sm);
+      font-weight: 700;
+      color: var(--color-white);
+      margin-bottom: 16px;
+    }
+
+    .footer-links {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .footer-links li { margin-bottom: 10px; }
+
+    .footer-links a {
+      font-size: var(--text-sm);
+      color: rgba(255,255,255,0.6);
+      text-decoration: none;
+      transition: color var(--transition-base);
+    }
+
+    .footer-links a:hover { color: var(--color-white); text-decoration: none; }
+
+    .footer-divider {
+      border-color: rgba(255,255,255,0.1);
+      margin: 36px 0 24px;
+    }
+
+    .footer-copy {
+      font-size: var(--text-xs);
+      color: rgba(255,255,255,0.4);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════════
+       NAVBAR
+  ══════════════════════════════════════════ -->
+  <nav class="navbar navbar-expand-lg gn-navbar sticky-top">
+    <div class="container">
+
+      <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
+        <img src="assets/images/logo-small.png" alt="GiveNet" />
+      </a>
+
+      <button
+        class="navbar-toggler border-0"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navMenu"
+        aria-controls="navMenu"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navMenu">
+        <ul class="navbar-nav mx-auto gap-1">
+          <li class="nav-item"><a class="nav-link active" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="pages/browse-items.html">Browse Items</a></li>
+          <li class="nav-item"><a class="nav-link" href="#how-it-works">How It Works</a></li>
+          <li class="nav-item"><a class="nav-link" href="pages/about.html">About</a></li>
+          <li class="nav-item"><a class="nav-link" href="pages/contact.html">Contact Us</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
+          <a href="pages/login.html" class="btn-nav-signin">Log In</a>
+          <a href="pages/signup.html" class="btn-nav-started">Sign Up</a>
+        </div>
+      </div>
+
+    </div>
+  </nav>
+
+  <!-- ══════════════════════════════════════════
+       HERO
+  ══════════════════════════════════════════ -->
+  <section class="hero-section">
+    <div class="container">
+      <div class="row align-items-end g-5">
+
+        <!-- Left: copy -->
+        <div class="col-lg-6 pb-5">
+          <span class="hero-label">
+            Trusted by 50+ Communities <i class="bi bi-star-fill"></i>
+          </span>
+          <h1 class="hero-heading">
+            Share What You Can,<br />Request What You Need.
+          </h1>
+          <p class="hero-sub">
+            Connect with neighbours in your area to give and receive items freely, privately, and for fun.
+          </p>
+          <div class="hero-cta">
+            <a href="pages/browse-items.html" class="btn-gn-secondary" style="border-radius: var(--radius-full); padding: 12px 28px;">
+              Browse Items
+            </a>
+            <a href="pages/signup.html" class="btn-gn-primary" style="border-radius: var(--radius-full); padding: 12px 28px;">
+              Sign Up Now <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+          </div>
+          <div class="hero-social-proof">
+            <div class="hero-avatars">
+              <img class="av" src="assets/images/Avatar.png" alt="" />
+              <img class="av" src="assets/images/Avatar (4) 1.png" alt="" />
+              <div class="av" style="background-color: var(--primary-400);"></div>
+              <div class="av" style="background-color: var(--primary-300);"></div>
+            </div>
+            <p class="hero-social-text mb-0">
+              Join <strong>20,000+</strong> people in your community
+            </p>
+          </div>
+        </div>
+
+        <!-- Right: hero image -->
+        <div class="col-lg-6 d-flex justify-content-end align-items-end">
+          <div class="hero-img-wrap w-100">
+            <img
+              src="assets/images/image 42.png"
+              alt="Community members sharing donations"
+            />
+
+            <!-- Floating badge: top-right — item donated status -->
+            <div class="hero-badge hero-badge-top">
+              <div class="hero-badge-icon green">
+                <i class="bi bi-check-circle-fill"></i>
+              </div>
+              <div>
+                <p class="hero-badge-label">Status</p>
+                <p class="hero-badge-value">Item Donated!</p>
+              </div>
+            </div>
+
+            <!-- Floating badge: bottom-right — community love -->
+            <div class="hero-badge hero-badge-bottom">
+              <div class="hero-badge-icon brown">
+                <i class="bi bi-heart-fill"></i>
+              </div>
+              <div>
+                <p class="hero-badge-label">Impact</p>
+                <p class="hero-badge-value">Community Love</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════
+       WHY CHOOSE GIVENET
+  ══════════════════════════════════════════ -->
+  <section class="section-why">
+    <div class="container">
+      <div class="text-center">
+        <p class="section-label">Why GiveNet</p>
+        <h2 class="section-heading">Why Choose GiveNet?</h2>
+        <p class="section-sub">
+          Making it easy to give and receive items within your local neighbourhood safely and efficiently.
+        </p>
+      </div>
+      <div class="row g-4">
+        <div class="col-sm-6 col-lg-3">
+          <div class="feature-card">
+            <div class="feature-icon"><i class="bi bi-box-seam"></i></div>
+            <p class="feature-title">Easy Donation</p>
+            <p class="feature-desc">Post items you no longer need in minutes with photos, descriptions and pickup options.</p>
+          </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <div class="feature-card">
+            <div class="feature-icon"><i class="bi bi-recycle"></i></div>
+            <p class="feature-title">Request Item</p>
+            <p class="feature-desc">Give your items a second life in your community and help reduce household waste.</p>
+          </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <div class="feature-card">
+            <div class="feature-icon"><i class="bi bi-envelope-check"></i></div>
+            <p class="feature-title">Real-Time Tracking</p>
+            <p class="feature-desc">Track your donations and requests with live status updates from posting to collection.</p>
+          </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+          <div class="feature-card">
+            <div class="feature-icon"><i class="bi bi-shield-check"></i></div>
+            <p class="feature-title">Safe & Moderated</p>
+            <p class="feature-desc">All listings are reviewed by our admin team before going live to keep the community safe.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════
+       HOW IT WORKS
+  ══════════════════════════════════════════ -->
+  <section class="section-how" id="how-it-works">
+    <div class="container">
+      <div class="row align-items-center g-5">
+
+        <!-- Left: steps -->
+        <div class="col-lg-6">
+          <p class="section-label">The Process</p>
+          <h2 class="section-heading">How It Works</h2>
+          <p class="section-sub text-start mx-0 mb-4">
+            Simple steps to start sharing in your neighbourhood.
+          </p>
+
+          <div class="how-step">
+            <div class="step-num">1</div>
+            <div>
+              <p class="step-title">List an Item</p>
+              <p class="step-desc">Describe and post the items you want to donate. Add photos, set your location and preferred collection method.</p>
+            </div>
+          </div>
+
+          <div class="how-step">
+            <div class="step-num">2</div>
+            <div>
+              <p class="step-title">Connect with Neighbours</p>
+              <p class="step-desc">Recipients browse available items and send requests. You review and accept the right match.</p>
+            </div>
+          </div>
+
+          <div class="how-step">
+            <div class="step-num">3</div>
+            <div>
+              <p class="step-title">Hand Over Safely</p>
+              <p class="step-desc">Arrange pickup or delivery and mark the item as collected. Leave feedback to build community trust.</p>
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <a href="pages/signup.html" class="btn-gn-primary" style="border-radius: var(--radius-full); padding: 12px 28px; display: inline-flex;">
+              Get Started Now
+            </a>
+          </div>
+        </div>
+
+        <!-- Right: photo collage -->
+        <div class="col-lg-6">
+          <div class="how-images">
+            <img src="assets/images/Frame 74.png" alt="Donation" />
+            <img src="assets/images/Frame 75.png" alt="Receiving an item" />
+            <img src="assets/images/Frame 77.png" alt="Handing off safely" />
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════
+       BROWSE ITEMS PREVIEW
+  ══════════════════════════════════════════ -->
+  <section class="section-browse">
+    <div class="container">
+      <div class="text-center mb-5">
+        <p class="section-label">Available Now</p>
+        <h2 class="section-heading">Browse Items Near You</h2>
+        <p class="section-sub">
+          Discover free items donated by people in your community.
+        </p>
+      </div>
+
+      <div class="row g-4">
+
+        <!-- Card 1 -->
+        <div class="col-sm-6 col-lg-4">
+          <div class="item-card">
+            <img class="item-card-img" src="assets/images/Baby Crib.png" alt="Wooden Baby Crib" />
+            <div class="item-card-body">
+              <div class="item-card-badges">
+                <span class="badge-gn badge-available">Available</span>
+                <span class="badge-gn" style="background-color: var(--primary-100); color: var(--primary-700);">Baby &amp; Kids</span>
+              </div>
+              <p class="item-card-title">Wooden Baby Crib</p>
+              <p class="item-card-location">
+                <i class="bi bi-geo-alt"></i> Yaba, Lagos
+              </p>
+              <a href="pages/browse-items.html" class="btn-view-item">View Item</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="col-sm-6 col-lg-4">
+          <div class="item-card">
+            <img class="item-card-img" src="assets/images/Wooden Dining Chair.png" alt="Wooden Dining Chair" />
+            <div class="item-card-body">
+              <div class="item-card-badges">
+                <span class="badge-gn badge-available">Available</span>
+                <span class="badge-gn" style="background-color: var(--primary-100); color: var(--primary-700);">Furniture</span>
+              </div>
+              <p class="item-card-title">Wooden Dining Chair</p>
+              <p class="item-card-location">
+                <i class="bi bi-geo-alt"></i> Nsukka, Enugu
+              </p>
+              <a href="pages/browse-items.html" class="btn-view-item">View Item</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="col-sm-6 col-lg-4">
+          <div class="item-card">
+            <img class="item-card-img" src="assets/images/Home Appliances 1.png" alt="Home Appliances Set" />
+            <div class="item-card-body">
+              <div class="item-card-badges">
+                <span class="badge-gn badge-available">Available</span>
+                <span class="badge-gn" style="background-color: var(--primary-100); color: var(--primary-700);">Appliances</span>
+              </div>
+              <p class="item-card-title">Home Appliances Set</p>
+              <p class="item-card-location">
+                <i class="bi bi-geo-alt"></i> Ikeja, Lagos
+              </p>
+              <a href="pages/browse-items.html" class="btn-view-item">View Item</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="text-center mt-5">
+        <a href="pages/browse-items.html" class="btn-gn-primary" style="border-radius: var(--radius-full); padding: 13px 32px; display: inline-flex;">
+          View All Items <i class="bi bi-arrow-right ms-2"></i>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════
+       CTA BANNER
+  ══════════════════════════════════════════ -->
+  <section class="section-cta">
+    <div class="container">
+      <h2 class="cta-heading">Ready to make a difference?</h2>
+      <p class="cta-sub">
+        Whether you have items to give or are looking for something for your family, our community is here for you.
+      </p>
+      <div class="cta-buttons">
+        <a href="pages/signup.html" class="btn-cta-primary">Get Started Now</a>
+        <a href="#how-it-works" class="btn-cta-outline">Learn More</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════
+       FOOTER
+  ══════════════════════════════════════════ -->
+  <footer class="gn-footer">
+    <div class="container">
+      <div class="row g-4">
+
+        <!-- Brand -->
+        <div class="col-lg-4 col-md-6">
+          <div class="footer-brand">
+            <img src="assets/images/logo-small.png" alt="GiveNet" />
+          </div>
+          <p class="footer-tagline">
+            Connecting communities through the power of giving. Share what you have, find what you need.
+          </p>
+        </div>
+
+        <!-- GiveNet links -->
+        <div class="col-lg-2 col-md-6 col-6">
+          <p class="footer-col-title">GiveNet</p>
+          <ul class="footer-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="pages/browse-items.html">Browse Items</a></li>
+            <li><a href="#how-it-works">How It Works</a></li>
+            <li><a href="pages/about.html">About</a></li>
+          </ul>
+        </div>
+
+        <!-- Support -->
+        <div class="col-lg-2 col-md-6 col-6">
+          <p class="footer-col-title">Support</p>
+          <ul class="footer-links">
+            <li><a href="pages/help.html">Help Center</a></li>
+            <li><a href="pages/contact.html">Contact Us</a></li>
+            <li><a href="pages/safety-guidelines.html">Safety</a></li>
+            <li><a href="pages/faqs.html">FAQs</a></li>
+          </ul>
+        </div>
+
+        <!-- Legal -->
+        <div class="col-lg-2 col-md-6 col-6">
+          <p class="footer-col-title">Legal</p>
+          <ul class="footer-links">
+            <li><a href="pages/about.html">About Us</a></li>
+            <li><a href="pages/community-rules.html">Community Rules</a></li>
+            <li><a href="pages/privacy.html">Privacy Policy</a></li>
+            <li><a href="pages/terms.html">Terms of Service</a></li>
+          </ul>
+        </div>
+
+      </div>
+
+      <hr class="footer-divider" />
+
+      <p class="footer-copy text-center mb-0">
+        &copy; 2026 GiveNet. Building stronger communities through sharing.
+      </p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

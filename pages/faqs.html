@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FAQs — GiveNet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+  <style>
+    .gn-navbar { background-color: var(--color-white); border-bottom: 1px solid var(--gray-200); padding: 14px 0; }
+    .gn-navbar .navbar-brand img { height: 36px; width: auto; }
+    .gn-navbar .nav-link { font-size: var(--text-sm); font-weight: 600; color: var(--text-700); padding: 6px 14px; transition: color var(--transition-base); }
+    .gn-navbar .nav-link:hover, .gn-navbar .nav-link.active { color: var(--color-primary); }
+    .btn-nav-signin { font-size: var(--text-sm); font-weight: 600; color: var(--color-primary); background: transparent; border: 1.5px solid var(--color-primary); border-radius: var(--radius-md); padding: 8px 18px; text-decoration: none; transition: background-color var(--transition-base); }
+    .btn-nav-signin:hover { background-color: var(--primary-100); color: var(--color-primary); text-decoration: none; }
+    .btn-nav-started { font-size: var(--text-sm); font-weight: 600; color: var(--color-white); background-color: var(--color-primary); border: 1.5px solid var(--color-primary); border-radius: var(--radius-md); padding: 8px 18px; text-decoration: none; transition: background-color var(--transition-base); }
+    .btn-nav-started:hover { background-color: var(--primary-800); color: var(--color-white); text-decoration: none; }
+
+    .gn-footer { background-color: var(--primary-800); padding: 56px 0 28px; color: rgba(255,255,255,0.75); }
+    .footer-brand img { height: 40px; width: auto; margin-bottom: 10px; filter: brightness(0) invert(1); opacity: 0.9; }
+    .footer-tagline { font-size: var(--text-sm); color: rgba(255,255,255,0.55); max-width: 220px; line-height: 1.6; }
+    .footer-col-title { font-size: var(--text-sm); font-weight: 700; color: var(--color-white); margin-bottom: 16px; }
+    .footer-links { list-style: none; padding: 0; margin: 0; }
+    .footer-links li { margin-bottom: 10px; }
+    .footer-links a { font-size: var(--text-sm); color: rgba(255,255,255,0.6); text-decoration: none; transition: color var(--transition-base); }
+    .footer-links a:hover { color: var(--color-white); }
+    .footer-divider { border-color: rgba(255,255,255,0.1); margin: 36px 0 24px; }
+    .footer-copy { font-size: var(--text-xs); color: rgba(255,255,255,0.4); }
+
+    /* Hero */
+    .page-hero { background-color: var(--color-secondary); padding: 64px 0; text-align: center; }
+    .page-badge { display: inline-flex; align-items: center; gap: 6px; font-size: var(--text-xs); font-weight: 700; color: var(--color-primary); background: var(--color-white); border: 1px solid var(--gray-200); border-radius: var(--radius-full); padding: 6px 14px; margin-bottom: 20px; }
+    .page-title { font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; color: var(--text-900); margin-bottom: 14px; }
+    .page-subtitle { font-size: var(--text-base); color: var(--neutral-500); max-width: 520px; margin: 0 auto; line-height: 1.7; }
+
+    /* FAQ body */
+    .faq-body { padding: 64px 0; }
+    .faq-group { margin-bottom: 48px; }
+    .faq-group-title { font-size: var(--text-lg); font-weight: 800; color: var(--text-900); margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--color-secondary); }
+
+    .accordion-item { border: 1px solid var(--gray-200) !important; border-radius: var(--radius-lg) !important; margin-bottom: 10px; overflow: hidden; }
+    .accordion-button { font-size: var(--text-sm); font-weight: 600; color: var(--text-900); background-color: var(--color-white); box-shadow: none !important; padding: 18px 20px; }
+    .accordion-button:not(.collapsed) { color: var(--color-primary); background-color: var(--color-white); }
+    .accordion-body { font-size: var(--text-sm); color: var(--neutral-500); line-height: 1.8; background-color: var(--color-white); padding: 0 20px 18px; }
+
+    /* Still have questions */
+    .still-questions { background-color: var(--primary-800); padding: 72px 0; text-align: center; }
+    .still-questions h2 { font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 800; color: var(--color-white); margin-bottom: 12px; }
+    .still-questions p { font-size: var(--text-base); color: rgba(255,255,255,0.75); max-width: 480px; margin: 0 auto 28px; line-height: 1.7; }
+    .btn-sq-primary { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: var(--radius-md); background-color: var(--color-white); color: var(--color-primary); font-size: var(--text-sm); font-weight: 700; text-decoration: none; border: 2px solid var(--color-white); transition: background-color var(--transition-base); margin: 0 6px; }
+    .btn-sq-primary:hover { background-color: var(--primary-100); color: var(--color-primary); text-decoration: none; }
+    .btn-sq-outline { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: var(--radius-md); background-color: transparent; color: var(--color-white); font-size: var(--text-sm); font-weight: 700; text-decoration: none; border: 2px solid rgba(255,255,255,0.5); transition: border-color var(--transition-base); margin: 0 6px; }
+    .btn-sq-outline:hover { border-color: var(--color-white); background-color: rgba(255,255,255,0.1); color: var(--color-white); }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar navbar-expand-lg gn-navbar sticky-top">
+    <div class="container">
+      <a class="navbar-brand" href="../index.html"><img src="../assets/images/logo-small.png" alt="GiveNet" /></a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu" aria-controls="navMenu" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navMenu">
+        <ul class="navbar-nav mx-auto gap-1">
+          <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="browse-items.html">Browse Items</a></li>
+          <li class="nav-item"><a class="nav-link" href="how-it-works.html">How It Works</a></li>
+          <li class="nav-item"><a class="nav-link" href="about.html">About Us</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact-us.html">Contact Us</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
+          <a href="login.html" class="btn-nav-signin">Log In</a>
+          <a href="signup.html" class="btn-nav-started">Sign Up</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <section class="page-hero">
+    <div class="container">
+      <span class="page-badge">FAQs &#128172;</span>
+      <h1 class="page-title">Frequently Asked Questions</h1>
+      <p class="page-subtitle">Everything you need to know about using GiveNet safely and effectively.</p>
+    </div>
+  </section>
+
+  <section class="faq-body">
+    <div class="container">
+      <div class="col-lg-9 mx-auto">
+
+        <!-- Getting Started -->
+        <div class="faq-group">
+          <h2 class="faq-group-title">Getting Started</h2>
+          <div class="accordion" id="accordionStart">
+            <div class="accordion-item">
+              <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#s1">How do I create an account?</button></h2>
+              <div id="s1" class="accordion-collapse collapse"><div class="accordion-body">Click "Sign Up" in the top right corner, fill in your name, email, and password, and verify your email address. You'll be able to start browsing and posting items as soon as you're verified.</div></div>
+            </div>
+            <div class="accordion-item">
+              <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#s2">Is GiveNet really free?</button></h2>
+              <div id="s2" class="accordion-collapse collapse"><div class="accordion-body">Yes, completely. GiveNet is free for all users with no hidden fees, subscriptions, or transaction charges. All items must be given freely — any monetary exchange violates our terms.</div></div>
+            </div>
+            <div class="accordion-item">
+              <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#s3">How does the listing process work?</button></h2>
+              <div id="s3" class="accordion-collapse collapse"><div class="accordion-body">Log in, go to your Donor Dashboard, click "Post New Item," add photos and details, and submit. Our admin team reviews the listing and makes it live within 24 hours once approved.</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Donating Items -->
+        <div class="faq-group">
+          <h2 class="faq-group-title">Donating Items</h2>
+          <div class="accordion" id="accordionDonate">
+            <div class="accordion-item">
+              <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#d1">What do I need for donation?</button></h2>
+              <div id="d1" class="accordion-collapse collapse"><div class="accordion-body">You'll need clear photos, an honest description of the item's condition, category selection, and your preferred pickup arrangement. Items must be clean, functional, and safe to use.</div></div>
+            </div>
+            <div class="accordion-item">
+              <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#d2">What items can be donated?</button></h2>
+              <div id="d2" class="accordion-collapse collapse"><div class="accordion-body">You can donate clothing, furniture, electronics, books, baby items, kitchenware, toys, and more. Items must be in usable condition. We do not allow weapons, hazardous materials, live animals, or illegal items.</div></div>
+            </div>
+            <div class="accordion-item">
+              <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#d3">Can I edit or delete my listing?</button></h2>
+              <div id="d3" class="accordion-collapse collapse"><div class="accordion-body">Yes. Go to "My Items" in your dashboard to edit or delete any listing. If you've received requests, please let those users know before removing the listing.</div></div>
+            </div>
+            <div class="accordion-item">
+              <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#d4">How long does my listing stay active?</button></h2>
+              <div id="d4" class="accordion-collapse collapse"><div class="accordion-body">Listings stay active until you manually remove them or mark them as collected. We recommend removing items as soon as they're no longer available to avoid frustrating recipients.</div></div>
+            </div>
+            <div class="accordion-item">
+              <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#d5">Can I donate multiple items at once?</button></h2>
+              <div id="d5" class="accordion-collapse collapse"><div class="accordion-body">Yes, there's no limit on how many items you can donate. Just create a separate listing for each item to make it easy for recipients to find what they need.</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Requesting Items -->
+        <div class="faq-group">
+          <h2 class="faq-group-title">Requesting Items</h2>
+          <div class="accordion" id="accordionRequest">
+            <div class="accordion-item">
+              <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#r1">How do I request an item?</button></h2>
+              <div id="r1" class="accordion-collapse collapse"><div class="accordion-body">Browse available items and click "Request Item" on any listing you're interested in. Write a short message explaining why you'd like the item, then submit your request. The donor will review and respond.</div></div>
+            </div>
+            <div class="accordion-item">
+              <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#r2">Can I request multiple items?</button></h2>
+              <div id="r2" class="accordion-collapse collapse"><div class="accordion-body">You can request multiple different items, but you're limited to 3 active requests at a time. This ensures fairness across the community and gives everyone a chance to receive items.</div></div>
+            </div>
+            <div class="accordion-item">
+              <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#r3">What happens when a request is declined?</button></h2>
+              <div id="r3" class="accordion-collapse collapse"><div class="accordion-body">If your request is declined, you'll receive a notification. The item may still be available for someone else to request. You're free to search for similar items and request again.</div></div>
+            </div>
+            <div class="accordion-item">
+              <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#r4">How long does it take to hear back?</button></h2>
+              <div id="r4" class="accordion-collapse collapse"><div class="accordion-body">Donors typically respond within 24–48 hours. If you haven't heard back within 3 days, you may want to reach out to our support team or continue browsing for similar items.</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pickup & Exchange -->
+        <div class="faq-group">
+          <h2 class="faq-group-title">Pickup &amp; Exchange</h2>
+          <div class="accordion" id="accordionPickup">
+            <div class="accordion-item">
+              <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#p1">Where should I meet to exchange items?</button></h2>
+              <div id="p1" class="accordion-collapse collapse"><div class="accordion-body">Always meet in public, well-lit locations such as shopping centres, cafes, community buildings, or designated safe exchange zones. Avoid meeting at private residences unless you know the person well.</div></div>
+            </div>
+            <div class="accordion-item">
+              <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#p2">What if the item is not as described?</button></h2>
+              <div id="p2" class="accordion-collapse collapse"><div class="accordion-body">If an item is significantly different from its description, you are not obligated to accept it. Report the discrepancy to our team using the Report button on the listing so we can review the donor's account.</div></div>
+            </div>
+            <div class="accordion-item">
+              <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#p3">Should I bring anything to pickup?</button></h2>
+              <div id="p3" class="accordion-collapse collapse"><div class="accordion-body">For large items, bring help to carry them. Have a bag or box for smaller items. It's also a good idea to let someone know where you're going and bring a charged phone.</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Safety & Trust -->
+        <div class="faq-group">
+          <h2 class="faq-group-title">Safety &amp; Trust</h2>
+          <div class="accordion" id="accordionSafety">
+            <div class="accordion-item">
+              <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#st1">How does GiveNet ensure my safety?</button></h2>
+              <div id="st1" class="accordion-collapse collapse"><div class="accordion-body">All listings are reviewed before going live. Our rating system keeps all users accountable. You can report any user or listing at any time, and our moderation team reviews reports within 24 hours. Repeat offenders are permanently banned.</div></div>
+            </div>
+            <div class="accordion-item">
+              <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#st2">What should I do if I feel unsafe?</button></h2>
+              <div id="st2" class="accordion-collapse collapse"><div class="accordion-body">Leave the situation immediately and contact local authorities if necessary. Then report the incident to us at support@givenet.com or use the in-app Report feature. Your safety is our top priority.</div></div>
+            </div>
+            <div class="accordion-item">
+              <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#st3">Can I report inappropriate behavior?</button></h2>
+              <div id="st3" class="accordion-collapse collapse"><div class="accordion-body">Yes. Use the Report button on any listing or user profile to flag inappropriate behavior. You can also email us at support@givenet.com. All reports are confidential and reviewed promptly.</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Account & Settings -->
+        <div class="faq-group">
+          <h2 class="faq-group-title">Account &amp; Settings</h2>
+          <div class="accordion" id="accordionAccount">
+            <div class="accordion-item">
+              <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#ac1">How do I update my profile?</button></h2>
+              <div id="ac1" class="accordion-collapse collapse"><div class="accordion-body">Go to your Profile settings from the dashboard navigation. You can update your name, profile photo, location, and contact preferences at any time.</div></div>
+            </div>
+            <div class="accordion-item">
+              <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#ac2">Can I change my account type?</button></h2>
+              <div id="ac2" class="accordion-collapse collapse"><div class="accordion-body">Yes. You can switch between Donor and Recipient roles from your dashboard. The "Switch Account" option in your profile allows you to toggle between both roles with a single click.</div></div>
+            </div>
+            <div class="accordion-item">
+              <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#ac3">How do I delete my account?</button></h2>
+              <div id="ac3" class="accordion-collapse collapse"><div class="accordion-body">To delete your account, go to Profile Settings and select "Delete Account." Please note that account deletion is permanent and cannot be undone. All your listings and history will be removed.</div></div>
+            </div>
+            <div class="accordion-item">
+              <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#ac4">I forgot my password. What do I do?</button></h2>
+              <div id="ac4" class="accordion-collapse collapse"><div class="accordion-body">Click "Forgot Password?" on the login page and enter your email address. We'll send you a reset link. Check your spam folder if it doesn't arrive within a few minutes.</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Troubleshooting -->
+        <div class="faq-group">
+          <h2 class="faq-group-title">Troubleshooting</h2>
+          <div class="accordion" id="accordionTrouble">
+            <div class="accordion-item">
+              <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#t1">I am having a problem. What's wrong?</button></h2>
+              <div id="t1" class="accordion-collapse collapse"><div class="accordion-body">First, try refreshing the page or clearing your browser cache. If the problem persists, contact our support team at support@givenet.com with a description of the issue and any error messages you're seeing.</div></div>
+            </div>
+            <div class="accordion-item">
+              <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#t2">My photos aren't uploading. Help!</button></h2>
+              <div id="t2" class="accordion-collapse collapse"><div class="accordion-body">Make sure your image is under 5MB and in JPG, PNG, or WEBP format. Try a different browser or device. If you're on mobile, ensure GiveNet has permission to access your photo library.</div></div>
+            </div>
+            <div class="accordion-item">
+              <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#t3">How do I report a technical bug?</button></h2>
+              <div id="t3" class="accordion-collapse collapse"><div class="accordion-body">Email us at support@givenet.com with a description of the bug, the steps to reproduce it, your device type, and browser version. Screenshots are very helpful. We aim to fix critical bugs within 24 hours.</div></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Still have questions -->
+  <section class="still-questions">
+    <div class="container">
+      <h2>Still Have Questions?</h2>
+      <p>If you can't find the answer here, our support team is ready to help you out.</p>
+      <div>
+        <a href="contact-us.html" class="btn-sq-primary"><i class="bi bi-headset"></i> Contact Support</a>
+        <a href="help-center.html" class="btn-sq-outline"><i class="bi bi-question-circle"></i> Help Center</a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="gn-footer">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-lg-4 col-md-6">
+          <div class="footer-brand"><img src="../assets/images/logo-small.png" alt="GiveNet" /></div>
+          <p class="footer-tagline">Connecting communities through the power of giving. Share what you have, find what you need.</p>
+        </div>
+        <div class="col-lg-2 col-md-6 col-6">
+          <p class="footer-col-title">Quick Links</p>
+          <ul class="footer-links">
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="browse-items.html">Browse Items</a></li>
+            <li><a href="how-it-works.html">How It Works</a></li>
+            <li><a href="about.html">About Us</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-6 col-6">
+          <p class="footer-col-title">Support</p>
+          <ul class="footer-links">
+            <li><a href="help-center.html">Help Center</a></li>
+            <li><a href="safety-guidelines.html">Safety Guidelines</a></li>
+            <li><a href="contact-us.html">Contact Us</a></li>
+            <li><a href="faqs.html">FAQs</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-6 col-6">
+          <p class="footer-col-title">Legal</p>
+          <ul class="footer-links">
+            <li><a href="privacy-policy.html">Privacy Policies</a></li>
+            <li><a href="terms-of-service.html">Terms Of Service</a></li>
+            <li><a href="community-rules.html">Community Rules</a></li>
+          </ul>
+        </div>
+      </div>
+      <hr class="footer-divider" />
+      <p class="footer-copy text-center mb-0">&copy; 2026 GiveNet. Building stronger communities through sharing.</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

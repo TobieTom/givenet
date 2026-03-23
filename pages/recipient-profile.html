@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profile Settings — GiveNet</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      display: flex; min-height: 100vh;
+      background: var(--color-white); color: var(--color-text); overflow-x: hidden;
+    }
+
+    /* ══ SIDEBAR ══════════════════════════════════════════════ */
+    .gn-sidebar {
+      width: 260px; flex-shrink: 0; background: #FEFAF3;
+      display: flex; flex-direction: column;
+      height: 100vh; position: fixed; top: 0; left: 0; z-index: 300;
+      transition: width var(--transition-slow), transform var(--transition-slow);
+      overflow: hidden;
+    }
+    .gn-sidebar.collapsed { width: 72px; }
+    .sidebar-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 16px 14px; flex-shrink: 0;
+    }
+    .sidebar-logo img { height: 36px; width: auto; display: block; }
+    .sidebar-collapse-btn {
+      background: none; border: none; cursor: pointer;
+      width: 32px; height: 32px; border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--neutral-400); font-size: 1rem;
+      transition: background var(--transition-fast), color var(--transition-fast); flex-shrink: 0;
+    }
+    .sidebar-collapse-btn:hover { background: var(--gray-100); color: var(--text-800); }
+    .gn-sidebar.collapsed .sidebar-collapse-btn i { transform: rotate(180deg); }
+    .sidebar-nav { flex: 1; padding: 4px 12px; overflow-y: auto; }
+    .sidebar-nav ul { list-style: none; }
+    .sidebar-nav ul li { margin-bottom: 2px; }
+    .sidebar-link {
+      display: flex; align-items: center; gap: 12px; padding: 11px 14px;
+      border-radius: var(--radius-lg); text-decoration: none;
+      font-size: var(--text-sm); font-weight: 600; color: var(--text-600);
+      transition: background var(--transition-fast), color var(--transition-fast);
+      white-space: nowrap; width: 100%; background: none; border: none;
+      cursor: pointer; font-family: inherit; text-align: left;
+    }
+    .sidebar-link i { font-size: 1.05rem; flex-shrink: 0; }
+    .sidebar-link:hover { background: var(--gray-100); color: var(--text-900); text-decoration: none; }
+    .sidebar-link.active { background: var(--primary-800); color: var(--color-white); }
+    .sidebar-link.active:hover { background: var(--primary-900); color: var(--color-white); }
+    .nav-badge {
+      margin-left: auto; background: var(--error-500); color: white;
+      font-size: 10px; font-weight: 700; padding: 2px 7px;
+      border-radius: var(--radius-full); flex-shrink: 0;
+    }
+    .gn-sidebar.collapsed .sidebar-link span,
+    .gn-sidebar.collapsed .nav-badge,
+    .gn-sidebar.collapsed .sidebar-logo img { opacity: 0; width: 0; overflow: hidden; }
+    .gn-sidebar.collapsed .sidebar-link { justify-content: center; padding: 11px; gap: 0; }
+    .gn-sidebar.collapsed .sidebar-header { justify-content: center; }
+    .gn-sidebar.collapsed .sidebar-collapse-btn { margin: 0 auto; }
+    .sidebar-bottom { padding: 12px; border-top: 1px solid var(--gray-200); flex-shrink: 0; }
+    .sidebar-bottom-link { color: var(--neutral-500); margin-bottom: 2px; }
+    .sidebar-bottom-link:hover { color: var(--text-900); background: var(--gray-100); }
+    .sidebar-bottom-link.logout-link:hover { background: var(--error-50); color: var(--error-600); }
+    .sidebar-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 299;
+    }
+    .sidebar-overlay.active { display: block; }
+
+    /* ══ MAIN ═════════════════════════════════════════════════ */
+    .gn-main {
+      margin-left: 260px; flex: 1; display: flex; flex-direction: column;
+      min-height: 100vh; min-width: 0; transition: margin-left var(--transition-slow);
+    }
+    .gn-main.sidebar-collapsed { margin-left: 72px; }
+
+    /* ── Topbar ──────────────────────────────────────────────── */
+    .gn-topbar {
+      height: 64px; background: var(--color-white);
+      border-bottom: 1px solid var(--gray-200);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 28px; flex-shrink: 0; position: sticky; top: 0; z-index: 200;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 14px; }
+    .hamburger-btn {
+      background: none; border: none; font-size: 1.4rem; color: var(--text-700);
+      cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 4px;
+    }
+    .topbar-greeting h1 { font-size: var(--text-lg); font-weight: 800; color: var(--text-900); line-height: 1.2; }
+    .topbar-greeting p  { font-size: var(--text-xs); color: var(--neutral-500); margin: 0; }
+    .topbar-right { display: flex; align-items: center; gap: 16px; }
+    .notif-btn {
+      position: relative; background: none; border: none; cursor: pointer;
+      width: 38px; height: 38px; border-radius: var(--radius-full);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-600); font-size: 1.1rem; transition: background var(--transition-fast);
+    }
+    .notif-btn:hover { background: var(--gray-100); }
+    .notif-badge {
+      position: absolute; top: 4px; right: 4px;
+      background: var(--error-500); color: white; font-size: 9px; font-weight: 700;
+      min-width: 16px; height: 16px; border-radius: var(--radius-full);
+      display: flex; align-items: center; justify-content: center; border: 2px solid white;
+    }
+    .user-chip {
+      display: flex; align-items: center; gap: 10px;
+      cursor: pointer; padding: 6px 10px; border-radius: var(--radius-lg);
+      transition: background var(--transition-fast);
+    }
+    .user-chip:hover { background: var(--gray-100); }
+    .user-chip-avatar {
+      width: 36px; height: 36px; border-radius: var(--radius-full);
+      background: var(--primary-200); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: var(--text-sm); color: var(--color-primary); overflow: hidden;
+    }
+    .user-chip-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .user-chip-name  { font-size: var(--text-sm); font-weight: 700; color: var(--text-900); display: block; line-height: 1.2; }
+    .user-chip-email { font-size: 10px; color: var(--neutral-400); display: block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .user-chip .bi-chevron-down { font-size: 0.75rem; color: var(--neutral-400); }
+
+    /* ── Content ─────────────────────────────────────────────── */
+    .gn-content { padding: 28px; flex: 1; background: var(--color-white); }
+
+    /* ── Incomplete banner ───────────────────────────────────── */
+    .incomplete-banner {
+      display: flex; align-items: center; gap: 14px;
+      background: var(--primary-100); border-radius: var(--radius-lg);
+      padding: 14px 18px; margin-bottom: 20px;
+    }
+    .incomplete-banner i { font-size: 1.4rem; color: var(--color-primary); flex-shrink: 0; }
+    .incomplete-banner strong { font-size: var(--text-sm); font-weight: 700; color: var(--text-900); display: block; margin-bottom: 2px; }
+    .incomplete-banner span  { font-size: var(--text-xs); color: var(--text-600); }
+
+    /* ── Tab nav ─────────────────────────────────────────────── */
+    .profile-tabs {
+      display: flex; gap: 4px;
+      background: var(--gray-100); border-radius: var(--radius-lg);
+      padding: 4px; margin-bottom: 24px;
+    }
+    .profile-tab-btn {
+      flex: 1; padding: 9px 16px; border: none; border-radius: var(--radius-md);
+      background: transparent; font-size: var(--text-sm); font-weight: 600;
+      color: var(--neutral-500); cursor: pointer; font-family: inherit;
+      transition: background var(--transition-fast), color var(--transition-fast);
+    }
+    .profile-tab-btn:hover { color: var(--text-800); }
+    .profile-tab-btn.active {
+      background: var(--color-white); color: var(--text-900);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    /* ── Card ────────────────────────────────────────────────── */
+    .profile-card {
+      background: var(--color-white); border: 1px solid var(--gray-200);
+      border-radius: var(--radius-lg); padding: 28px; margin-bottom: 20px;
+    }
+    .profile-card-title {
+      font-size: var(--text-base); font-weight: 800; color: var(--text-900);
+      margin-bottom: 24px;
+    }
+
+    /* ── Avatar block ────────────────────────────────────────── */
+    .avatar-block {
+      display: flex; align-items: center; gap: 20px; margin-bottom: 28px;
+      padding-bottom: 24px; border-bottom: 1px solid var(--gray-100);
+    }
+    .avatar-wrap { position: relative; flex-shrink: 0; }
+    .avatar-lg {
+      width: 80px; height: 80px; border-radius: var(--radius-full);
+      background: var(--primary-200); display: flex; align-items: center; justify-content: center;
+      font-size: 1.8rem; font-weight: 800; color: var(--color-primary); overflow: hidden;
+    }
+    .avatar-lg img { width: 100%; height: 100%; object-fit: cover; }
+    .avatar-cam-btn {
+      position: absolute; bottom: 2px; right: 2px;
+      width: 26px; height: 26px; border-radius: var(--radius-full);
+      background: var(--color-primary); color: white;
+      border: 2px solid white; display: flex; align-items: center; justify-content: center;
+      font-size: 0.65rem; cursor: pointer; transition: background var(--transition-fast);
+    }
+    .avatar-cam-btn:hover { background: var(--primary-800); }
+    .avatar-info { flex: 1; }
+    .avatar-info .av-name  { font-size: var(--text-lg); font-weight: 800; color: var(--text-900); margin-bottom: 2px; }
+    .avatar-info .av-email { font-size: var(--text-sm); color: var(--neutral-500); margin-bottom: 4px; }
+    .avatar-info .av-since { font-size: var(--text-xs); color: var(--neutral-400); margin-bottom: 12px; }
+    .btn-upload-photo {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 18px; border-radius: var(--radius-full);
+      border: 1.5px solid var(--gray-300); background: transparent;
+      font-size: var(--text-sm); font-weight: 600; color: var(--text-700);
+      cursor: pointer; font-family: inherit;
+      transition: background var(--transition-fast), border-color var(--transition-fast);
+    }
+    .btn-upload-photo:hover { background: var(--gray-50); border-color: var(--neutral-400); }
+
+    /* ── Form grid ───────────────────────────────────────────── */
+    .form-grid-2 {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px 20px;
+      margin-bottom: 16px;
+    }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group label {
+      font-size: var(--text-sm); font-weight: 600; color: var(--text-800);
+    }
+    .form-group label .req { color: var(--error-500); margin-left: 2px; }
+    .form-input {
+      width: 100%; padding: 10px 14px;
+      border: 1px solid var(--gray-300); border-radius: var(--radius-lg);
+      font-size: var(--text-sm); font-family: inherit; color: var(--text-800);
+      background: var(--color-white); outline: none;
+      transition: border-color var(--transition-fast);
+    }
+    .form-input:focus { border-color: var(--color-primary); }
+    .form-input:disabled, .form-input[readonly] { background: var(--gray-50); color: var(--neutral-500); cursor: default; }
+    .form-textarea {
+      width: 100%; padding: 12px 14px;
+      border: 1px solid var(--gray-300); border-radius: var(--radius-lg);
+      font-size: var(--text-sm); font-family: inherit; color: var(--text-800);
+      background: var(--color-white); outline: none; resize: vertical; min-height: 110px;
+      transition: border-color var(--transition-fast);
+    }
+    .form-textarea:focus { border-color: var(--color-primary); }
+    .char-count { font-size: var(--text-xs); color: var(--neutral-400); margin-top: 4px; }
+
+    /* ── Password input wrapper ──────────────────────────────── */
+    .pw-wrap { position: relative; }
+    .pw-wrap .pw-icon-left {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      color: var(--neutral-400); font-size: 0.9rem; pointer-events: none;
+    }
+    .pw-wrap .form-input { padding-left: 38px; padding-right: 42px; }
+    .pw-toggle {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer;
+      color: var(--neutral-400); font-size: 0.9rem; padding: 4px;
+    }
+    .pw-toggle:hover { color: var(--text-700); }
+    .pw-hint { font-size: var(--text-xs); color: var(--neutral-400); margin-top: 5px; }
+
+    /* ── Buttons ─────────────────────────────────────────────── */
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 11px 24px; border-radius: var(--radius-full);
+      background: var(--primary-800); color: var(--color-white);
+      font-size: var(--text-sm); font-weight: 700; font-family: inherit;
+      border: none; cursor: pointer;
+      transition: background var(--transition-fast);
+    }
+    .btn-primary:hover { background: var(--primary-900); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-outline {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 22px; border-radius: var(--radius-full);
+      background: transparent; color: var(--text-700);
+      font-size: var(--text-sm); font-weight: 700; font-family: inherit;
+      border: 1.5px solid var(--gray-300); cursor: pointer;
+      transition: background var(--transition-fast);
+    }
+    .btn-outline:hover { background: var(--gray-100); }
+    .btn-danger {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 22px; border-radius: var(--radius-full);
+      background: var(--error-600); color: white;
+      font-size: var(--text-sm); font-weight: 700; font-family: inherit;
+      border: none; cursor: pointer;
+      transition: background var(--transition-fast);
+    }
+    .btn-danger:hover { background: var(--error-700, #b91c1c); }
+
+    /* ── Account settings row ────────────────────────────────── */
+    .account-settings-row {
+      display: flex; align-items: center; gap: 14px;
+      padding: 16px 0;
+    }
+    .account-settings-row + .account-settings-row {
+      border-top: 1px solid var(--gray-100);
+    }
+    .account-role-icon {
+      width: 44px; height: 44px; border-radius: var(--radius-lg);
+      background: var(--primary-100); display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; color: var(--color-primary); flex-shrink: 0;
+    }
+    .account-role-info { flex: 1; }
+    .account-role-name { font-size: var(--text-sm); font-weight: 700; color: var(--text-900); }
+    .account-role-sub  { font-size: var(--text-xs); color: var(--neutral-500); }
+    .btn-change {
+      padding: 8px 20px; border-radius: var(--radius-full);
+      border: 1.5px solid var(--gray-300); background: transparent;
+      font-size: var(--text-sm); font-weight: 600; color: var(--text-700);
+      cursor: pointer; font-family: inherit;
+      transition: background var(--transition-fast);
+    }
+    .btn-change:hover { background: var(--gray-100); }
+
+    /* ── Danger zone ─────────────────────────────────────────── */
+    .danger-zone {
+      background: var(--color-white); border: 1px solid var(--error-200, #fecaca);
+      border-radius: var(--radius-lg); padding: 20px 24px;
+    }
+    .danger-zone-title { font-size: var(--text-sm); font-weight: 800; color: var(--error-600); margin-bottom: 8px; }
+    .danger-zone p { font-size: var(--text-xs); color: var(--neutral-500); margin-bottom: 14px; }
+    .btn-deactivate {
+      background: none; border: none; padding: 0; cursor: pointer;
+      font-size: var(--text-sm); font-weight: 600; color: var(--error-600);
+      text-decoration: underline; font-family: inherit;
+    }
+    .btn-deactivate:hover { color: var(--error-700, #b91c1c); }
+
+    /* ── Skeleton ────────────────────────────────────────────── */
+    .skeleton {
+      background: linear-gradient(90deg, var(--gray-100) 25%, var(--gray-50) 50%, var(--gray-100) 75%);
+      background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: var(--radius-md);
+    }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+    /* ── Modals ──────────────────────────────────────────────── */
+    .modal-backdrop-custom {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45); z-index: 1050;
+      align-items: center; justify-content: center;
+    }
+    .modal-backdrop-custom.show { display: flex; }
+    .modal-box {
+      background: var(--color-white); border-radius: var(--radius-xl, 16px);
+      padding: 28px; width: 100%; max-width: 480px; margin: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+      animation: modalIn 0.18s ease;
+    }
+    @keyframes modalIn { from { opacity: 0; transform: scale(0.96) translateY(8px); } to { opacity: 1; transform: none; } }
+    .modal-head {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;
+    }
+    .modal-head h3 { font-size: var(--text-base); font-weight: 800; color: var(--text-900); margin: 0; }
+    .modal-close {
+      background: none; border: none; cursor: pointer; color: var(--neutral-400);
+      font-size: 1rem; padding: 4px; border-radius: var(--radius-sm);
+    }
+    .modal-close:hover { color: var(--text-800); }
+    .modal-subtitle { font-size: var(--text-sm); color: var(--neutral-500); margin-bottom: 20px; }
+    .modal-actions { display: flex; gap: 12px; margin-top: 20px; }
+    .modal-actions .btn-outline,
+    .modal-actions .btn-primary,
+    .modal-actions .btn-danger { flex: 1; justify-content: center; }
+
+    /* Switch account modal specifics */
+    .switch-info-box {
+      background: var(--gray-50); border-radius: var(--radius-lg);
+      padding: 14px 16px; margin-bottom: 16px;
+      display: flex; gap: 10px; align-items: flex-start;
+    }
+    .switch-info-box i { color: var(--neutral-400); flex-shrink: 0; margin-top: 1px; }
+    .switch-info-box strong { font-size: var(--text-sm); font-weight: 700; color: var(--text-800); display: block; margin-bottom: 4px; }
+    .switch-info-box p { font-size: var(--text-xs); color: var(--neutral-500); margin: 0; }
+    .switch-role-option {
+      border: 1.5px solid var(--gray-200); border-radius: var(--radius-lg);
+      padding: 16px; cursor: pointer;
+      transition: border-color var(--transition-fast), background var(--transition-fast);
+    }
+    .switch-role-option.selected { border-color: var(--color-primary); background: var(--primary-50); }
+    .switch-role-option-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .switch-role-option-head span { font-size: var(--text-sm); font-weight: 700; color: var(--text-900); }
+    .switch-role-option-head small { font-size: var(--text-xs); color: var(--neutral-500); }
+    .switch-feature {
+      display: flex; align-items: center; gap: 8px;
+      font-size: var(--text-xs); color: var(--text-700); margin-bottom: 5px;
+    }
+    .switch-feature i { color: var(--success-600); font-size: 0.9rem; }
+
+    /* Logout modal icon */
+    .logout-icon-wrap {
+      width: 52px; height: 52px; border-radius: var(--radius-full);
+      background: var(--error-50); display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; color: var(--error-500); margin-bottom: 14px;
+    }
+    .logout-modal-msg { font-size: var(--text-sm); color: var(--neutral-500); margin-bottom: 4px; }
+
+    /* Password updated modal */
+    .pw-updated-wrap {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 16px 0 8px; text-align: center;
+    }
+    .pw-updated-icon {
+      width: 64px; height: 64px; border-radius: var(--radius-full);
+      background: var(--success-50, #f0fdf4); display: flex; align-items: center; justify-content: center;
+      font-size: 1.8rem; color: var(--success-600); margin-bottom: 16px;
+    }
+    .pw-updated-title { font-size: var(--text-base); font-weight: 800; color: var(--success-700); margin-bottom: 6px; }
+    .pw-updated-sub   { font-size: var(--text-sm); color: var(--neutral-500); }
+
+    /* Deactivate modal */
+    .deactivate-icon-wrap {
+      width: 52px; height: 52px; border-radius: var(--radius-full);
+      background: var(--warning-100); display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; color: var(--warning-600); margin-bottom: 14px;
+    }
+
+    /* Toast */
+    .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; }
+    .toast-msg {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--text-900); color: white;
+      padding: 12px 18px; border-radius: var(--radius-lg);
+      font-size: var(--text-sm); font-weight: 600;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15); animation: fadeInUp 0.2s ease; margin-top: 8px;
+    }
+    .toast-msg.success { background: var(--success-700); }
+    .toast-msg.error   { background: var(--error-600); }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ══ RESPONSIVE ═══════════════════════════════════════════ */
+    @media (max-width: 991.98px) {
+      .gn-sidebar { transform: translateX(-100%); width: 260px !important; }
+      .gn-sidebar.mobile-open { transform: translateX(0); }
+      .gn-main { margin-left: 0 !important; }
+      .gn-topbar { padding: 0 16px; }
+      .gn-content { padding: 20px 16px; }
+      .user-chip-info { display: none; }
+      .form-grid-2 { grid-template-columns: 1fr; }
+      .profile-tabs { overflow-x: auto; }
+    }
+    @media (max-width: 575.98px) {
+      .topbar-greeting p { display: none; }
+      .avatar-block { flex-direction: column; align-items: flex-start; gap: 14px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- ══════════════════════════════════════ SIDEBAR -->
+  <aside class="gn-sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a class="sidebar-logo" href="recipient-dashboard.html">
+        <img src="../assets/images/logo-small.png" alt="GiveNet" />
+      </a>
+      <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" aria-label="Collapse sidebar">
+        <i class="bi bi-chevron-left"></i>
+      </button>
+    </div>
+    <nav class="sidebar-nav" aria-label="Recipient navigation">
+      <ul>
+        <li><a href="recipient-dashboard.html" class="sidebar-link"><i class="bi bi-grid-1x2"></i><span>Dashboard</span></a></li>
+        <li><a href="recipient-browse.html" class="sidebar-link"><i class="bi bi-grid-3x3-gap"></i><span>Browse Items</span></a></li>
+        <li>
+          <a href="recipient-requests.html" class="sidebar-link">
+            <i class="bi bi-clipboard-check"></i><span>My Requests</span>
+            <span class="nav-badge d-none" id="pendingBadge">0</span>
+          </a>
+        </li>
+        <li><a href="recipient-messages.html" class="sidebar-link"><i class="bi bi-chat-dots"></i><span>Messages</span></a></li>
+        <li><a href="recipient-ratings.html" class="sidebar-link"><i class="bi bi-star"></i><span>Ratings &amp; Feedback</span></a></li>
+        <li><a href="recipient-profile.html" class="sidebar-link active"><i class="bi bi-person-gear"></i><span>Profile Settings</span></a></li>
+      </ul>
+    </nav>
+    <div class="sidebar-bottom">
+      <button class="sidebar-link sidebar-bottom-link" id="sidebarSwitchBtn" type="button">
+        <i class="bi bi-arrow-left-right"></i><span>Switch to Donor</span>
+      </button>
+      <button class="sidebar-link sidebar-bottom-link logout-link" id="sidebarLogoutBtn" type="button">
+        <i class="bi bi-box-arrow-right"></i><span>Logout</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ══════════════════════════════════════ MAIN -->
+  <div class="gn-main" id="gnMain">
+
+    <!-- Topbar -->
+    <header class="gn-topbar">
+      <div class="topbar-left">
+        <button class="hamburger-btn d-lg-none" id="hamburgerBtn" aria-label="Open sidebar">
+          <i class="bi bi-list"></i>
+        </button>
+        <div class="topbar-greeting">
+          <h1>Profile Settings</h1>
+          <p>Manage your account settings and preferences</p>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="notif-btn" aria-label="Notifications">
+          <i class="bi bi-bell"></i>
+          <span class="notif-badge d-none" id="notifBadge">0</span>
+        </button>
+        <div class="user-chip" id="userChip">
+          <div class="user-chip-avatar" id="userAvatar">?</div>
+          <div class="user-chip-info">
+            <span class="user-chip-name"  id="userName">—</span>
+            <span class="user-chip-email" id="userEmail">—</span>
+          </div>
+          <i class="bi bi-chevron-down"></i>
+        </div>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <main class="gn-content" id="pageContent">
+
+      <!-- Skeleton while loading -->
+      <div id="skeletonView">
+        <div class="skeleton" style="height:48px;border-radius:12px;margin-bottom:20px;"></div>
+        <div class="skeleton" style="height:200px;border-radius:12px;margin-bottom:16px;"></div>
+        <div class="skeleton" style="height:300px;border-radius:12px;"></div>
+      </div>
+
+      <!-- Main profile UI (hidden until loaded) -->
+      <div id="profileView" class="d-none">
+
+        <!-- Incomplete banner -->
+        <div class="incomplete-banner d-none" id="incompleteBanner">
+          <i class="bi bi-person-circle"></i>
+          <div>
+            <strong>Your profile is not fully set up yet.</strong>
+            <span>Hi! Add more details to help build trust in the community.</span>
+          </div>
+        </div>
+
+        <!-- Tab nav -->
+        <div class="profile-tabs" role="tablist">
+          <button class="profile-tab-btn active" data-tab="profile"       role="tab">Profile</button>
+          <button class="profile-tab-btn"         data-tab="security"     role="tab">Security</button>
+          <button class="profile-tab-btn"         data-tab="notification" role="tab">Notification</button>
+          <button class="profile-tab-btn"         data-tab="privacy"      role="tab">Privacy</button>
+        </div>
+
+        <!-- ── PROFILE TAB ── -->
+        <div id="tabProfile">
+          <div class="profile-card">
+            <h2 class="profile-card-title">Personal Information</h2>
+
+            <!-- Avatar + info -->
+            <div class="avatar-block">
+              <div class="avatar-wrap">
+                <div class="avatar-lg" id="avatarLg">?</div>
+                <button class="avatar-cam-btn" id="avatarCamBtn" type="button" title="Change photo">
+                  <i class="bi bi-camera"></i>
+                </button>
+                <input type="file" id="photoFileInput" accept="image/jpeg,image/png,image/webp" style="display:none;" />
+              </div>
+              <div class="avatar-info">
+                <div class="av-name"  id="avName">—</div>
+                <div class="av-email" id="avEmail">—</div>
+                <div class="av-since" id="avSince">—</div>
+                <button class="btn-upload-photo" id="uploadPhotoBtn" type="button">
+                  <i class="bi bi-upload"></i> Upload Photo
+                </button>
+              </div>
+            </div>
+
+            <!-- Form -->
+            <form id="profileForm" novalidate>
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label for="fieldFullName">Full Name <span class="req">*</span></label>
+                  <input type="text" id="fieldFullName" class="form-input" placeholder="Enter your full name" autocomplete="name" />
+                </div>
+                <div class="form-group">
+                  <label for="fieldEmail">Email Address <span class="req">*</span></label>
+                  <input type="email" id="fieldEmail" class="form-input" readonly />
+                </div>
+                <div class="form-group">
+                  <label for="fieldLocation">City / Location <span class="req">*</span></label>
+                  <input type="text" id="fieldLocation" class="form-input" placeholder="E.g., Yaba, Lagos" autocomplete="address-level2" />
+                </div>
+                <div class="form-group">
+                  <label for="fieldStreet">Street Address</label>
+                  <input type="text" id="fieldStreet" class="form-input" placeholder="E.g., 12 Palm Avenue" autocomplete="street-address" />
+                </div>
+              </div>
+
+              <div class="form-group" style="margin-bottom:16px;">
+                <label for="fieldPhone">Phone Number</label>
+                <input type="tel" id="fieldPhone" class="form-input" placeholder="Enter your phone number" autocomplete="tel" />
+              </div>
+
+              <div class="form-group" style="margin-bottom:6px;">
+                <label for="fieldBio">Bio</label>
+                <textarea id="fieldBio" class="form-textarea" placeholder="Tell others a little about yourself" maxlength="500"></textarea>
+                <span class="char-count" id="bioCount">0 / 500 characters</span>
+              </div>
+
+              <button type="submit" class="btn-primary" id="saveProfileBtn" style="margin-top:18px;">
+                <i class="bi bi-floppy"></i> Save Changes
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- ── SECURITY TAB ── -->
+        <div id="tabSecurity" class="d-none">
+
+          <!-- Change Password -->
+          <div class="profile-card">
+            <h2 class="profile-card-title">Change Password</h2>
+            <form id="passwordForm" novalidate>
+
+              <div class="form-group" style="margin-bottom:16px;">
+                <label for="fieldCurrentPw">Current Password <span class="req">*</span></label>
+                <div class="pw-wrap">
+                  <i class="bi bi-lock pw-icon-left"></i>
+                  <input type="password" id="fieldCurrentPw" class="form-input" placeholder="" autocomplete="current-password" />
+                  <button type="button" class="pw-toggle" data-target="fieldCurrentPw"><i class="bi bi-eye"></i></button>
+                </div>
+              </div>
+
+              <div class="form-group" style="margin-bottom:4px;">
+                <label for="fieldNewPw">New Password <span class="req">*</span></label>
+                <div class="pw-wrap">
+                  <i class="bi bi-lock pw-icon-left"></i>
+                  <input type="password" id="fieldNewPw" class="form-input" placeholder="" autocomplete="new-password" />
+                  <button type="button" class="pw-toggle" data-target="fieldNewPw"><i class="bi bi-eye"></i></button>
+                </div>
+                <span class="pw-hint">Password must be at least 8 characters long</span>
+              </div>
+
+              <div class="form-group" style="margin-bottom:20px;">
+                <label for="fieldConfirmPw">Confirm Password <span class="req">*</span></label>
+                <div class="pw-wrap">
+                  <i class="bi bi-lock pw-icon-left"></i>
+                  <input type="password" id="fieldConfirmPw" class="form-input" placeholder="" autocomplete="new-password" />
+                  <button type="button" class="pw-toggle" data-target="fieldConfirmPw"><i class="bi bi-eye"></i></button>
+                </div>
+                <span class="pw-hint d-none" id="pwMismatchHint" style="color:var(--error-500);">Passwords do not match.</span>
+              </div>
+
+              <button type="submit" class="btn-primary" id="updatePwBtn">
+                <i class="bi bi-lock"></i> Update Password
+              </button>
+            </form>
+          </div>
+
+          <!-- Account Settings -->
+          <div class="profile-card">
+            <h2 class="profile-card-title">Account Settings</h2>
+            <div class="account-settings-row">
+              <div class="account-role-icon"><i class="bi bi-person-badge"></i></div>
+              <div class="account-role-info">
+                <div class="account-role-name">Recipient</div>
+                <div class="account-role-sub">Browse and request items you need</div>
+              </div>
+              <button class="btn-change" id="switchRoleBtn" type="button">Change</button>
+            </div>
+            <div class="account-settings-row">
+              <div class="account-role-icon" style="background:var(--error-50);color:var(--error-500);">
+                <i class="bi bi-box-arrow-right"></i>
+              </div>
+              <div class="account-role-info">
+                <div class="account-role-name">Log Out</div>
+                <div class="account-role-sub">Sign out of your account</div>
+              </div>
+              <button class="btn-change" id="logoutBtn" type="button" style="border-color:var(--error-200,#fecaca);color:var(--error-600);">Log Out</button>
+            </div>
+          </div>
+
+          <!-- Danger zone -->
+          <div class="danger-zone">
+            <div class="danger-zone-title">Danger Zone</div>
+            <p>Deactivating your account will hide your profile and requests. You can reactivate by logging back in.</p>
+            <button class="btn-deactivate" id="deactivateBtn" type="button">Deactivate Account</button>
+          </div>
+        </div>
+
+        <!-- ── NOTIFICATION TAB ── -->
+        <div id="tabNotification" class="d-none">
+          <div class="profile-card" style="text-align:center;padding:60px 24px;">
+            <i class="bi bi-bell" style="font-size:2.2rem;color:var(--neutral-300);display:block;margin-bottom:14px;"></i>
+            <div style="font-size:var(--text-base);font-weight:800;color:var(--text-700);margin-bottom:8px;">Notification settings coming soon</div>
+            <div style="font-size:var(--text-sm);color:var(--neutral-400);">You'll be able to manage email and push notification preferences here.</div>
+          </div>
+        </div>
+
+        <!-- ── PRIVACY TAB ── -->
+        <div id="tabPrivacy" class="d-none">
+          <div class="profile-card" style="text-align:center;padding:60px 24px;">
+            <i class="bi bi-shield-check" style="font-size:2.2rem;color:var(--neutral-300);display:block;margin-bottom:14px;"></i>
+            <div style="font-size:var(--text-base);font-weight:800;color:var(--text-700);margin-bottom:8px;">Privacy settings coming soon</div>
+            <div style="font-size:var(--text-sm);color:var(--neutral-400);">You'll be able to control who sees your profile and activity here.</div>
+          </div>
+        </div>
+
+      </div><!-- /profileView -->
+    </main>
+  </div><!-- /gn-main -->
+
+  <!-- ══════════════════════════════════════ MODALS -->
+
+  <!-- Password Updated modal -->
+  <div class="modal-backdrop-custom" id="pwUpdatedModal">
+    <div class="modal-box" style="max-width:420px;text-align:center;">
+      <div class="modal-head" style="justify-content:flex-end;">
+        <button class="modal-close" data-close="pwUpdatedModal"><i class="bi bi-x-lg"></i></button>
+      </div>
+      <div class="pw-updated-wrap">
+        <div class="pw-updated-icon"><i class="bi bi-check2-circle"></i></div>
+        <div class="pw-updated-title">Password Updated!</div>
+        <div class="pw-updated-sub">Your password has been reset successfully.</div>
+      </div>
+      <div class="modal-actions" style="margin-top:24px;">
+        <button class="btn-primary" data-close="pwUpdatedModal" style="width:100%;justify-content:center;">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Switch Account modal -->
+  <div class="modal-backdrop-custom" id="switchModal">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3><i class="bi bi-arrow-left-right" style="color:var(--color-primary);margin-right:8px;"></i>Switch Account Role</h3>
+        <button class="modal-close" data-close="switchModal"><i class="bi bi-x-lg"></i></button>
+      </div>
+      <p class="modal-subtitle">Choose which role you'd like to use. You can switch between roles at any time.</p>
+      <div class="switch-info-box">
+        <i class="bi bi-info-circle"></i>
+        <div>
+          <strong>About Account Types</strong>
+          <p>Each account type has different features and permissions. Choose the one that matches how you want to use GiveNet.</p>
+        </div>
+      </div>
+      <div class="switch-role-option selected" id="switchOptionDonor">
+        <div class="switch-role-option-head">
+          <div>
+            <span>Donor Account</span>
+            <small style="display:block;margin-top:2px;">Post items and manage donations</small>
+          </div>
+          <input type="radio" name="switchRole" value="donor" checked style="accent-color:var(--color-primary);width:18px;height:18px;" />
+        </div>
+        <div class="switch-feature"><i class="bi bi-check-circle-fill"></i> Post donation items</div>
+        <div class="switch-feature"><i class="bi bi-check-circle-fill"></i> Manage requests</div>
+        <div class="switch-feature"><i class="bi bi-check-circle-fill"></i> Track donations</div>
+        <div class="switch-feature"><i class="bi bi-check-circle-fill"></i> Message recipients</div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-outline" data-close="switchModal">Cancel</button>
+        <button class="btn-primary" id="confirmSwitchBtn">Switch Account</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Logout modal -->
+  <div class="modal-backdrop-custom" id="logoutModal">
+    <div class="modal-box" style="max-width:420px;">
+      <div class="logout-icon-wrap"><i class="bi bi-box-arrow-right"></i></div>
+      <div class="modal-head" style="margin-bottom:4px;">
+        <h3>Logout</h3>
+        <button class="modal-close" data-close="logoutModal"><i class="bi bi-x-lg"></i></button>
+      </div>
+      <p style="font-size:var(--text-sm);color:var(--neutral-500);margin-bottom:6px;">Are you sure you want to log out?</p>
+      <p class="logout-modal-msg">You'll need to log in again to access your Recipient dashboard.</p>
+      <div class="modal-actions">
+        <button class="btn-outline" data-close="logoutModal">Cancel</button>
+        <button class="btn-danger" id="confirmLogoutBtn"><i class="bi bi-box-arrow-right"></i> Logout</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Deactivate modal -->
+  <div class="modal-backdrop-custom" id="deactivateModal">
+    <div class="modal-box" style="max-width:420px;">
+      <div class="deactivate-icon-wrap"><i class="bi bi-exclamation-triangle"></i></div>
+      <div class="modal-head" style="margin-bottom:4px;">
+        <h3>Deactivate Account</h3>
+        <button class="modal-close" data-close="deactivateModal"><i class="bi bi-x-lg"></i></button>
+      </div>
+      <p style="font-size:var(--text-sm);color:var(--neutral-500);margin-bottom:6px;">Are you sure you want to deactivate your account?</p>
+      <p class="logout-modal-msg">Your profile and requests will be hidden. You can reactivate by logging back in.</p>
+      <div class="modal-actions">
+        <button class="btn-outline" data-close="deactivateModal">Cancel</button>
+        <button class="btn-danger" id="confirmDeactivateBtn"><i class="bi bi-slash-circle"></i> Deactivate</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script type="module">
+    import { auth, db, storage } from '../js/firebase-config.js';
+    import { onAuthStateChanged, signOut, updatePassword, reauthenticateWithCredential, EmailAuthProvider }
+      from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+    import { doc, getDoc, getDocs, updateDoc, collection, query, where }
+      from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+    import { ref, uploadBytes, getDownloadURL }
+      from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
+
+    // ── State ──────────────────────────────────────────────────
+    let currentUser = null;
+    let userData    = null;
+    let newPhotoFile = null;   // pending photo upload
+
+    // ── Helpers ────────────────────────────────────────────────
+    function escapeHtml(s) {
+      if (s == null) return '';
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function showToast(msg, type = 'info') {
+      const el = document.createElement('div');
+      el.className = `toast-msg ${type}`;
+      el.textContent = msg;
+      document.getElementById('toastContainer').appendChild(el);
+      setTimeout(() => el.remove(), 3500);
+    }
+
+    function getInitial(name) { return name ? name.trim().charAt(0).toUpperCase() : '?'; }
+
+    function fmtMemberSince(ts) {
+      if (!ts) return '';
+      const d = ts.toDate ? ts.toDate() : new Date(ts);
+      return 'Member since ' + d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    }
+
+    function setAvatarEl(el, photoURL, name) {
+      if (photoURL) {
+        el.innerHTML = `<img src="${escapeHtml(photoURL)}" alt="${escapeHtml(name)}" />`;
+      } else {
+        el.innerHTML = '';
+        el.textContent = getInitial(name);
+      }
+    }
+
+    function openModal(id)  { document.getElementById(id).classList.add('show'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+    // Close buttons with data-close attribute
+    document.querySelectorAll('[data-close]').forEach(btn => {
+      btn.addEventListener('click', () => closeModal(btn.dataset.close));
+    });
+    // Close on backdrop click
+    document.querySelectorAll('.modal-backdrop-custom').forEach(bd => {
+      bd.addEventListener('click', e => { if (e.target === bd) closeModal(bd.id); });
+    });
+
+    // ── Tab switching ──────────────────────────────────────────
+    const tabPanels = {
+      profile:      document.getElementById('tabProfile'),
+      security:     document.getElementById('tabSecurity'),
+      notification: document.getElementById('tabNotification'),
+      privacy:      document.getElementById('tabPrivacy'),
+    };
+    document.querySelectorAll('.profile-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.profile-tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        Object.values(tabPanels).forEach(p => p.classList.add('d-none'));
+        tabPanels[btn.dataset.tab].classList.remove('d-none');
+      });
+    });
+
+    // ── Auth guard ─────────────────────────────────────────────
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) { window.location.href = 'login.html'; return; }
+      try {
+        const snap = await getDoc(doc(db, 'users', user.uid));
+        if (!snap.exists()) { window.location.href = 'login.html'; return; }
+        const data = snap.data();
+        if (data.role === 'admin') { window.location.href = 'admin-dashboard.html'; return; }
+        if (data.role === 'donor') { window.location.href = 'donor-dashboard.html'; return; }
+        currentUser = user;
+        userData    = data;
+        initTopbar(user, data);
+        populateProfile(user, data);
+        loadPendingBadge(user.uid);
+        document.getElementById('skeletonView').classList.add('d-none');
+        document.getElementById('profileView').classList.remove('d-none');
+      } catch (err) {
+        console.error('Auth error:', err);
+        window.location.href = 'login.html';
+      }
+    });
+
+    // ── Topbar ─────────────────────────────────────────────────
+    function initTopbar(user, data) {
+      const name  = data.fullName || data.displayName || data.name || user.displayName || 'User';
+      const parts = name.trim().split(/\s+/);
+      const short = parts.length > 1 ? `${parts[0]} ${parts[parts.length-1][0]}.` : parts[0];
+      document.getElementById('userName').textContent  = short;
+      document.getElementById('userEmail').textContent = user.email || '';
+      setAvatarEl(document.getElementById('userAvatar'), data.photoURL || user.photoURL, name);
+    }
+
+    // ── Pending requests badge ─────────────────────────────────
+    async function loadPendingBadge(uid) {
+      try {
+        const snap = await getDocs(
+          query(collection(db, 'requests'),
+            where('recipientId', '==', uid),
+            where('approvalStatus', '==', 'pending')
+          )
+        );
+        if (snap.size > 0) {
+          const badge = document.getElementById('pendingBadge');
+          badge.textContent = snap.size > 9 ? '9+' : snap.size;
+          badge.classList.remove('d-none');
+        }
+      } catch {}
+    }
+
+    // ── Populate profile form ──────────────────────────────────
+    function populateProfile(user, data) {
+      const name = data.fullName || data.displayName || data.name || user.displayName || '';
+      // Avatar block
+      setAvatarEl(document.getElementById('avatarLg'), data.photoURL || user.photoURL, name);
+      document.getElementById('avName').textContent  = name || '—';
+      document.getElementById('avEmail').textContent = user.email || '';
+      document.getElementById('avSince').textContent = fmtMemberSince(data.createdAt);
+
+      // Form fields
+      document.getElementById('fieldFullName').value = name;
+      document.getElementById('fieldEmail').value    = user.email || '';
+      document.getElementById('fieldLocation').value = data.location || '';
+      document.getElementById('fieldStreet').value   = data.streetAddress || '';
+      document.getElementById('fieldPhone').value    = data.phone || '';
+      document.getElementById('fieldBio').value      = data.bio || '';
+      updateBioCount();
+
+      // Incomplete banner
+      const isComplete = name && data.location && (data.phone || data.bio);
+      if (!isComplete) document.getElementById('incompleteBanner').classList.remove('d-none');
+    }
+
+    // ── Bio character counter ──────────────────────────────────
+    function updateBioCount() {
+      const len = document.getElementById('fieldBio').value.length;
+      document.getElementById('bioCount').textContent = `${len} / 500 characters`;
+    }
+    document.getElementById('fieldBio').addEventListener('input', updateBioCount);
+
+    // ── Photo upload ───────────────────────────────────────────
+    function triggerPhotoInput() { document.getElementById('photoFileInput').click(); }
+    document.getElementById('avatarCamBtn').addEventListener('click', triggerPhotoInput);
+    document.getElementById('uploadPhotoBtn').addEventListener('click', triggerPhotoInput);
+
+    document.getElementById('photoFileInput').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      newPhotoFile = file;
+      const url = URL.createObjectURL(file);
+      document.getElementById('avatarLg').innerHTML = `<img src="${url}" alt="Preview" />`;
+      showToast('Photo selected — click Save Changes to upload.', 'info');
+    });
+
+    // ── Save profile ───────────────────────────────────────────
+    document.getElementById('profileForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!currentUser) return;
+
+      const fullName      = document.getElementById('fieldFullName').value.trim();
+      const location      = document.getElementById('fieldLocation').value.trim();
+      const streetAddress = document.getElementById('fieldStreet').value.trim();
+      const phone         = document.getElementById('fieldPhone').value.trim();
+      const bio           = document.getElementById('fieldBio').value.trim();
+
+      if (!fullName) { showToast('Full name is required.', 'error'); return; }
+
+      const btn = document.getElementById('saveProfileBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Saving…';
+
+      try {
+        let photoURL = userData.photoURL || '';
+
+        // Upload new photo if selected
+        if (newPhotoFile) {
+          const storageRef = ref(storage, `profiles/${currentUser.uid}/avatar`);
+          await uploadBytes(storageRef, newPhotoFile);
+          photoURL = await getDownloadURL(storageRef);
+          newPhotoFile = null;
+        }
+
+        const updates = { fullName, location, streetAddress, phone, bio, photoURL };
+        await updateDoc(doc(db, 'users', currentUser.uid), updates);
+
+        // Refresh local state
+        userData = { ...userData, ...updates };
+
+        // Update topbar avatar + name
+        document.getElementById('userName').textContent = fullName.trim().split(/\s+/).slice(0,2).join(' ');
+        setAvatarEl(document.getElementById('userAvatar'), photoURL, fullName);
+        document.getElementById('avName').textContent = fullName;
+        setAvatarEl(document.getElementById('avatarLg'), photoURL, fullName);
+
+        // Hide incomplete banner if now complete
+        if (fullName && location) document.getElementById('incompleteBanner').classList.add('d-none');
+
+        showToast('Profile saved successfully.', 'success');
+      } catch (err) {
+        console.error('Save profile error:', err);
+        showToast('Failed to save profile. Please try again.', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-floppy"></i> Save Changes';
+      }
+    });
+
+    // ── Password toggle helpers ────────────────────────────────
+    document.querySelectorAll('.pw-toggle').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const input = document.getElementById(btn.dataset.target);
+        const icon  = btn.querySelector('i');
+        if (input.type === 'password') {
+          input.type = 'text';
+          icon.className = 'bi bi-eye-slash';
+        } else {
+          input.type = 'password';
+          icon.className = 'bi bi-eye';
+        }
+      });
+    });
+
+    // ── Change password ────────────────────────────────────────
+    document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!currentUser) return;
+
+      const currentPw = document.getElementById('fieldCurrentPw').value;
+      const newPw     = document.getElementById('fieldNewPw').value;
+      const confirmPw = document.getElementById('fieldConfirmPw').value;
+      const mismatch  = document.getElementById('pwMismatchHint');
+
+      if (!currentPw || !newPw || !confirmPw) {
+        showToast('Please fill in all password fields.', 'error'); return;
+      }
+      if (newPw.length < 8) {
+        showToast('New password must be at least 8 characters.', 'error'); return;
+      }
+      if (newPw !== confirmPw) {
+        mismatch.classList.remove('d-none'); return;
+      }
+      mismatch.classList.add('d-none');
+
+      const btn = document.getElementById('updatePwBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Updating…';
+
+      try {
+        const credential = EmailAuthProvider.credential(currentUser.email, currentPw);
+        await reauthenticateWithCredential(currentUser, credential);
+        await updatePassword(currentUser, newPw);
+
+        // Clear fields
+        document.getElementById('fieldCurrentPw').value = '';
+        document.getElementById('fieldNewPw').value     = '';
+        document.getElementById('fieldConfirmPw').value = '';
+
+        openModal('pwUpdatedModal');
+      } catch (err) {
+        console.error('Password error:', err);
+        if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+          showToast('Current password is incorrect.', 'error');
+        } else {
+          showToast('Failed to update password. Please try again.', 'error');
+        }
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-lock"></i> Update Password';
+      }
+    });
+
+    // ── Switch account ─────────────────────────────────────────
+    document.getElementById('switchRoleBtn').addEventListener('click', () => openModal('switchModal'));
+    document.getElementById('sidebarSwitchBtn').addEventListener('click', () => openModal('switchModal'));
+
+    document.getElementById('confirmSwitchBtn').addEventListener('click', async () => {
+      if (!currentUser) return;
+      const btn = document.getElementById('confirmSwitchBtn');
+      btn.disabled = true;
+      btn.textContent = 'Switching…';
+      try {
+        await updateDoc(doc(db, 'users', currentUser.uid), { role: 'donor' });
+        window.location.href = 'donor-dashboard.html';
+      } catch {
+        showToast('Failed to switch account.', 'error');
+        btn.disabled = false;
+        btn.textContent = 'Switch Account';
+      }
+    });
+
+    // ── Logout ─────────────────────────────────────────────────
+    document.getElementById('logoutBtn').addEventListener('click', () => openModal('logoutModal'));
+    document.getElementById('sidebarLogoutBtn').addEventListener('click', () => openModal('logoutModal'));
+
+    document.getElementById('confirmLogoutBtn').addEventListener('click', async () => {
+      try {
+        await signOut(auth);
+        window.location.href = 'login.html';
+      } catch {
+        showToast('Logout failed.', 'error');
+      }
+    });
+
+    // ── Deactivate account ─────────────────────────────────────
+    document.getElementById('deactivateBtn').addEventListener('click', () => openModal('deactivateModal'));
+
+    document.getElementById('confirmDeactivateBtn').addEventListener('click', async () => {
+      if (!currentUser) return;
+      const btn = document.getElementById('confirmDeactivateBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Deactivating…';
+      try {
+        await updateDoc(doc(db, 'users', currentUser.uid), { status: 'inactive' });
+        await signOut(auth);
+        window.location.href = 'login.html';
+      } catch {
+        showToast('Failed to deactivate account.', 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-slash-circle"></i> Deactivate';
+      }
+    });
+
+    // ── Sidebar collapse ───────────────────────────────────────
+    document.getElementById('sidebarCollapseBtn').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.toggle('collapsed');
+      document.getElementById('gnMain').classList.toggle('sidebar-collapsed');
+    });
+    document.getElementById('hamburgerBtn').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.add('mobile-open');
+      document.getElementById('sidebarOverlay').classList.add('active');
+    });
+    document.getElementById('sidebarOverlay').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.remove('mobile-open');
+      document.getElementById('sidebarOverlay').classList.remove('active');
+    });
+
+  </script>
+</body>
+</html>

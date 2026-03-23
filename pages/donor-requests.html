@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Requests Received — GiveNet</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      display: flex; min-height: 100vh;
+      background: var(--color-white); color: var(--color-text); overflow-x: hidden;
+    }
+
+    /* ══════════════════════════════════════ SIDEBAR */
+    .gn-sidebar {
+      width: 260px; flex-shrink: 0; background: #FEFAF3;
+      display: flex; flex-direction: column; height: 100vh;
+      position: fixed; top: 0; left: 0; z-index: 300;
+      transition: width var(--transition-slow), transform var(--transition-slow); overflow: hidden;
+    }
+    .gn-sidebar.collapsed { width: 72px; }
+    .sidebar-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 16px 14px; flex-shrink: 0; }
+    .sidebar-logo img { height: 36px; width: auto; display: block; }
+    .sidebar-collapse-btn {
+      background: none; border: none; cursor: pointer; width: 32px; height: 32px;
+      border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center;
+      color: var(--neutral-400); font-size: 1rem;
+      transition: background var(--transition-fast), color var(--transition-fast); flex-shrink: 0;
+    }
+    .sidebar-collapse-btn:hover { background: var(--gray-100); color: var(--text-800); }
+    .gn-sidebar.collapsed .sidebar-collapse-btn i { transform: rotate(180deg); }
+    .sidebar-nav { flex: 1; padding: 4px 12px; overflow-y: auto; }
+    .sidebar-nav ul { list-style: none; }
+    .sidebar-nav ul li { margin-bottom: 2px; }
+    .sidebar-link {
+      display: flex; align-items: center; gap: 12px; padding: 11px 14px;
+      border-radius: var(--radius-lg); text-decoration: none;
+      font-size: var(--text-sm); font-weight: 600; color: var(--text-600);
+      transition: background var(--transition-fast), color var(--transition-fast);
+      white-space: nowrap; width: 100%; background: none; border: none;
+      cursor: pointer; font-family: inherit; text-align: left;
+    }
+    .sidebar-link i { font-size: 1.05rem; flex-shrink: 0; }
+    .sidebar-link:hover { background: var(--gray-100); color: var(--text-900); text-decoration: none; }
+    .sidebar-link.active { background: var(--primary-800); color: var(--color-white); }
+    .sidebar-link.active:hover { background: var(--primary-900); color: var(--color-white); }
+    .nav-badge {
+      margin-left: auto; background: var(--error-500); color: white;
+      font-size: 10px; font-weight: 700; padding: 2px 7px;
+      border-radius: var(--radius-full); flex-shrink: 0;
+    }
+    .gn-sidebar.collapsed .sidebar-link span,
+    .gn-sidebar.collapsed .nav-badge,
+    .gn-sidebar.collapsed .sidebar-logo img { opacity: 0; width: 0; overflow: hidden; }
+    .gn-sidebar.collapsed .sidebar-link { justify-content: center; padding: 11px; gap: 0; }
+    .gn-sidebar.collapsed .sidebar-header { justify-content: center; }
+    .gn-sidebar.collapsed .sidebar-collapse-btn { margin: 0 auto; }
+    .sidebar-bottom { padding: 12px; border-top: 1px solid var(--gray-200); flex-shrink: 0; }
+    .sidebar-bottom-link { color: var(--neutral-500); margin-bottom: 2px; }
+    .sidebar-bottom-link:hover { color: var(--text-900); background: var(--gray-100); }
+    .sidebar-bottom-link.logout-link:hover { background: var(--error-50); color: var(--error-600); }
+    .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 299; }
+    .sidebar-overlay.active { display: block; }
+
+    /* ══════════════════════════════════════ MAIN */
+    .gn-main {
+      margin-left: 260px; flex: 1; display: flex; flex-direction: column;
+      min-height: 100vh; min-width: 0; transition: margin-left var(--transition-slow);
+    }
+    .gn-main.sidebar-collapsed { margin-left: 72px; }
+
+    /* ── Topbar ───────────────────────────────────────────────── */
+    .gn-topbar {
+      height: 64px; background: var(--color-white); border-bottom: 1px solid var(--gray-200);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 28px; flex-shrink: 0; position: sticky; top: 0; z-index: 200;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 14px; }
+    .hamburger-btn { background: none; border: none; font-size: 1.4rem; color: var(--text-700); cursor: pointer; display: flex; align-items: center; padding: 4px; }
+    .topbar-greeting h1 { font-size: var(--text-lg); font-weight: 800; color: var(--text-900); line-height: 1.2; }
+    .topbar-greeting p  { font-size: var(--text-xs); color: var(--neutral-500); margin: 0; }
+    .topbar-right { display: flex; align-items: center; gap: 16px; }
+    .notif-btn {
+      position: relative; background: none; border: none; cursor: pointer;
+      width: 38px; height: 38px; border-radius: var(--radius-full);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-600); font-size: 1.1rem; transition: background var(--transition-fast);
+    }
+    .notif-btn:hover { background: var(--gray-100); }
+    .notif-badge {
+      position: absolute; top: 4px; right: 4px; background: var(--error-500); color: white;
+      font-size: 9px; font-weight: 700; min-width: 16px; height: 16px;
+      border-radius: var(--radius-full); display: flex; align-items: center; justify-content: center; border: 2px solid white;
+    }
+    .user-chip { display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 6px 10px; border-radius: var(--radius-lg); transition: background var(--transition-fast); }
+    .user-chip:hover { background: var(--gray-100); }
+    .user-chip-avatar {
+      width: 36px; height: 36px; border-radius: var(--radius-full);
+      background: var(--primary-200); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: var(--text-sm); color: var(--color-primary); overflow: hidden;
+    }
+    .user-chip-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .user-chip-name  { font-size: var(--text-sm); font-weight: 700; color: var(--text-900); display: block; line-height: 1.2; }
+    .user-chip-email { font-size: 10px; color: var(--neutral-400); display: block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .user-chip .bi-chevron-down { font-size: 0.75rem; color: var(--neutral-400); }
+
+    /* ── Content ─────────────────────────────────────────────── */
+    .gn-content { padding: 28px; flex: 1; background: var(--color-white); }
+
+    /* ── Metrics row ─────────────────────────────────────────── */
+    .metrics-row {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px;
+    }
+    .metric-card {
+      background: var(--color-white); border: 1px solid var(--gray-200);
+      border-radius: var(--radius-lg); padding: 18px 20px;
+      display: flex; align-items: center; gap: 14px;
+    }
+    .metric-icon {
+      width: 42px; height: 42px; border-radius: var(--radius-lg); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 1.15rem;
+    }
+    .metric-icon.brown { background: var(--primary-100); color: var(--color-primary); }
+    .metric-icon.amber { background: var(--warning-100); color: var(--warning-600); }
+    .metric-icon.green { background: var(--success-100); color: var(--success-700); }
+    .metric-icon.red   { background: var(--error-100);   color: var(--error-600); }
+    .metric-text-label { font-size: var(--text-xs); color: var(--neutral-500); font-weight: 600; margin-bottom: 2px; }
+    .metric-text-value { font-size: var(--text-2xl); font-weight: 800; color: var(--text-900); line-height: 1; }
+
+    /* ── Filter tabs ─────────────────────────────────────────── */
+    .filter-row { display: flex; align-items: center; margin-bottom: 20px; }
+    .filter-tabs {
+      display: flex; align-items: center; gap: 4px;
+      background: var(--gray-50); border: 1px solid var(--gray-200);
+      border-radius: var(--radius-lg); padding: 4px; flex-wrap: wrap;
+    }
+    .filter-tab {
+      padding: 7px 14px; border-radius: var(--radius-md); border: none; background: none;
+      cursor: pointer; font-family: inherit; font-size: var(--text-sm); font-weight: 600;
+      color: var(--neutral-500); transition: background var(--transition-fast), color var(--transition-fast);
+      white-space: nowrap; display: flex; align-items: center; gap: 6px;
+    }
+    .filter-tab:hover { color: var(--text-900); }
+    .filter-tab.active { background: var(--color-white); color: var(--text-900); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+    .tab-count {
+      background: var(--gray-200); color: var(--neutral-500);
+      font-size: 11px; font-weight: 700; padding: 1px 7px;
+      border-radius: var(--radius-full); line-height: 1.6;
+    }
+    .filter-tab.active .tab-count { background: var(--primary-100); color: var(--color-primary); }
+
+    /* ── Request list ────────────────────────────────────────── */
+    .requests-list { display: flex; flex-direction: column; gap: 12px; }
+
+    /* Request card */
+    .req-card {
+      background: var(--color-white); border: 1px solid var(--gray-200);
+      border-radius: var(--radius-lg); padding: 16px 20px;
+      display: flex; align-items: flex-start; gap: 16px;
+      transition: box-shadow var(--transition-base);
+    }
+    .req-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+
+    /* Item thumbnail */
+    .req-thumb {
+      width: 80px; height: 80px; border-radius: var(--radius-md); flex-shrink: 0;
+      object-fit: cover; border: 1px solid var(--gray-100);
+      background: var(--gray-100); display: block;
+    }
+
+    /* Middle info */
+    .req-info { flex: 1; min-width: 0; }
+    .req-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
+    .req-requester-row { display: flex; align-items: center; gap: 8px; }
+    .req-avatar {
+      width: 30px; height: 30px; border-radius: var(--radius-full); flex-shrink: 0;
+      background: var(--primary-200); color: var(--color-primary);
+      font-weight: 700; font-size: 11px; display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    .req-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .req-name { font-size: var(--text-sm); font-weight: 700; color: var(--text-900); }
+    .req-time { font-size: var(--text-xs); color: var(--neutral-400); margin-left: 4px; }
+
+    /* Status badge inline */
+    .req-status-badge {
+      font-size: 11px; font-weight: 700; padding: 3px 10px;
+      border-radius: var(--radius-full); white-space: nowrap; flex-shrink: 0;
+    }
+    .req-status-pending   { background: var(--warning-100);  color: var(--warning-700); }
+    .req-status-approved  { background: var(--success-100);  color: var(--success-700); }
+    .req-status-declined  { background: var(--error-100);    color: var(--error-600); }
+    .req-status-collected { background: var(--gray-100);     color: var(--neutral-500); }
+
+    .req-item-name {
+      font-size: var(--text-xs); color: var(--neutral-500); margin-bottom: 4px;
+    }
+    .req-item-name strong { color: var(--color-primary); font-weight: 700; }
+    .req-message {
+      font-size: var(--text-xs); color: var(--neutral-500); margin-bottom: 4px;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+      font-style: italic;
+    }
+    .req-date { font-size: var(--text-xs); color: var(--neutral-400); }
+
+    /* Actions column */
+    .req-actions {
+      display: flex; flex-direction: column; gap: 6px; align-items: flex-end; flex-shrink: 0;
+    }
+    .btn-view-item {
+      font-size: var(--text-xs); font-weight: 600; color: var(--color-primary);
+      text-decoration: none; white-space: nowrap; padding: 4px 0;
+    }
+    .btn-view-item:hover { text-decoration: underline; }
+    .btn-approve-req {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 8px 14px; border-radius: var(--radius-full);
+      background: var(--success-700); color: white;
+      font-size: var(--text-xs); font-weight: 700; font-family: inherit;
+      border: none; cursor: pointer; white-space: nowrap;
+      transition: background var(--transition-base);
+    }
+    .btn-approve-req:hover { background: var(--success-800, #15803d); }
+    .btn-decline-req {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 7px 14px; border-radius: var(--radius-full);
+      background: none; color: var(--error-600);
+      font-size: var(--text-xs); font-weight: 700; font-family: inherit;
+      border: 1.5px solid var(--error-300); cursor: pointer; white-space: nowrap;
+      transition: background var(--transition-base);
+    }
+    .btn-decline-req:hover { background: var(--error-50); }
+    .btn-collect-req {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 8px 14px; border-radius: var(--radius-full);
+      background: var(--color-primary); color: white;
+      font-size: var(--text-xs); font-weight: 700; font-family: inherit;
+      border: none; cursor: pointer; white-space: nowrap;
+      transition: background var(--transition-base);
+    }
+    .btn-collect-req:hover { background: var(--primary-800); }
+    .btn-msg-req {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 8px 14px; border-radius: var(--radius-full);
+      background: transparent; color: var(--color-primary);
+      font-size: var(--text-xs); font-weight: 700; font-family: inherit;
+      border: 1.5px solid var(--color-primary); cursor: pointer; white-space: nowrap;
+      transition: background var(--transition-base), color var(--transition-base);
+    }
+    .btn-msg-req:hover { background: var(--color-primary); color: white; }
+    .btn-msg-req:disabled { opacity: 0.6; pointer-events: none; }
+
+    /* ── Skeleton ────────────────────────────────────────────── */
+    .skel-req { height: 112px; border-radius: var(--radius-lg); border: 1px solid var(--gray-100); }
+
+    /* ── Empty state ─────────────────────────────────────────── */
+    .empty-state {
+      text-align: center; padding: 80px 24px;
+      display: flex; flex-direction: column; align-items: center;
+    }
+    .empty-icon { font-size: 3rem; color: var(--color-primary); margin-bottom: 16px; display: block; }
+    .empty-state h3 { font-size: var(--text-lg); font-weight: 800; color: var(--text-800); margin-bottom: 8px; }
+    .empty-state p  { font-size: var(--text-sm); color: var(--neutral-400); }
+
+    /* ══════════════════════════════════════ MODALS */
+    .modal-backdrop-custom {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+      z-index: 500; align-items: center; justify-content: center;
+    }
+    .modal-backdrop-custom.show { display: flex; }
+
+    .modal-box {
+      background: var(--color-white); border-radius: var(--radius-xl);
+      width: calc(100% - 48px); max-width: 460px;
+      max-height: 90vh; overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+    }
+    .modal-inner { padding: 28px; }
+    .modal-title-row { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 8px; }
+    .modal-title-row h2 { font-size: var(--text-base); font-weight: 800; color: var(--text-900); }
+    .modal-close {
+      background: none; border: none; cursor: pointer; font-size: 1rem;
+      color: var(--neutral-400); padding: 2px; transition: color var(--transition-fast);
+    }
+    .modal-close:hover { color: var(--text-900); }
+    .modal-subtitle { font-size: var(--text-sm); color: var(--neutral-500); margin-bottom: 20px; line-height: 1.5; }
+
+    /* Approve modal */
+    .approve-info-box {
+      background: var(--success-100); border: 1px solid #BBF7D0;
+      border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 20px;
+    }
+    .approve-info-box h4 { font-size: var(--text-sm); font-weight: 700; color: var(--success-700); margin-bottom: 8px; }
+    .approve-info-box ul { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+    .approve-info-box li {
+      font-size: var(--text-xs); color: var(--success-700);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .approve-info-box li i { font-size: 0.85rem; }
+
+    /* Decline modal */
+    .decline-warning {
+      background: #FFF7ED; border: 1px solid #FED7AA;
+      border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 16px;
+      display: flex; gap: 10px;
+    }
+    .decline-warning i { color: var(--warning-600); font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+    .decline-warning p { font-size: var(--text-xs); color: var(--warning-700); line-height: 1.5; margin: 0; }
+
+    .radio-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+    .radio-option {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 10px 12px; border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius-md); cursor: pointer;
+      transition: border-color var(--transition-fast), background var(--transition-fast);
+    }
+    .radio-option:has(input:checked) { border-color: var(--color-primary); background: var(--primary-100); }
+    .radio-option input[type=radio] { margin-top: 2px; accent-color: var(--color-primary); flex-shrink: 0; }
+    .radio-option-text strong { font-size: var(--text-sm); font-weight: 600; color: var(--text-800); display: block; }
+    .radio-option-text span   { font-size: var(--text-xs); color: var(--neutral-400); }
+
+    /* Collect modal */
+    .collect-ready-box {
+      background: var(--success-100); border: 1px solid #BBF7D0;
+      border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 16px;
+      display: flex; gap: 10px; align-items: flex-start;
+    }
+    .collect-ready-box i { color: var(--success-700); font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+    .collect-ready-box div strong { font-size: var(--text-sm); font-weight: 700; color: var(--success-700); display: block; }
+    .collect-ready-box div span  { font-size: var(--text-xs); color: var(--success-700); }
+
+    /* Shared modal inputs */
+    .modal-field { margin-bottom: 14px; }
+    .modal-label { display: block; font-size: var(--text-sm); font-weight: 700; color: var(--text-800); margin-bottom: 6px; }
+    .modal-textarea {
+      width: 100%; padding: 10px 14px; border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius-md); font-family: inherit; font-size: var(--text-sm);
+      color: var(--text-900); outline: none; resize: vertical; min-height: 80px; line-height: 1.6;
+      transition: border-color var(--transition-fast);
+    }
+    .modal-textarea:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(101,58,23,0.1); }
+    .modal-note { font-size: var(--text-xs); color: var(--neutral-400); margin-top: 6px; }
+
+    .modal-footer {
+      display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;
+      padding-top: 16px; border-top: 1px solid var(--gray-100);
+    }
+    .btn-modal-cancel {
+      padding: 10px 22px; border-radius: var(--radius-full);
+      border: 1.5px solid var(--gray-300); background: none;
+      color: var(--text-700); font-size: var(--text-sm); font-weight: 700;
+      font-family: inherit; cursor: pointer; transition: background var(--transition-base);
+    }
+    .btn-modal-cancel:hover { background: var(--gray-100); }
+    .btn-modal-approve {
+      padding: 10px 22px; border-radius: var(--radius-full);
+      background: var(--success-700); color: white;
+      font-size: var(--text-sm); font-weight: 700; font-family: inherit;
+      border: none; cursor: pointer; transition: background var(--transition-base);
+    }
+    .btn-modal-approve:hover { background: var(--success-800, #15803d); }
+    .btn-modal-approve:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-modal-decline {
+      padding: 10px 22px; border-radius: var(--radius-full);
+      background: var(--error-500); color: white;
+      font-size: var(--text-sm); font-weight: 700; font-family: inherit;
+      border: none; cursor: pointer; transition: background var(--transition-base);
+    }
+    .btn-modal-decline:hover { background: var(--error-600); }
+    .btn-modal-decline:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-modal-collect {
+      padding: 10px 22px; border-radius: var(--radius-full);
+      background: var(--color-primary); color: white;
+      font-size: var(--text-sm); font-weight: 700; font-family: inherit;
+      border: none; cursor: pointer; transition: background var(--transition-base);
+    }
+    .btn-modal-collect:hover { background: var(--primary-800); }
+    .btn-modal-collect:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* ══════════════════════════════════════ RESPONSIVE */
+    @media (max-width: 1100px) { .metrics-row { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 991.98px) {
+      .gn-sidebar { transform: translateX(-100%); width: 260px !important; }
+      .gn-sidebar.mobile-open { transform: translateX(0); }
+      .gn-main { margin-left: 0 !important; }
+      .gn-topbar { padding: 0 16px; }
+      .gn-content { padding: 20px 16px; }
+      .metrics-row { grid-template-columns: repeat(2, 1fr); }
+      .user-chip-info { display: none; }
+      .req-card { flex-wrap: wrap; }
+      .req-actions { flex-direction: row; align-items: center; width: 100%; flex-wrap: wrap; }
+    }
+    @media (max-width: 575.98px) {
+      .metrics-row { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .filter-tab { padding: 6px 10px; font-size: 11px; }
+      .topbar-greeting p { display: none; }
+      .req-thumb { width: 60px; height: 60px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- ══════════════════════════════════════ SIDEBAR -->
+  <aside class="gn-sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a class="sidebar-logo" href="../index.html">
+        <img src="../assets/images/logo-small.png" alt="GiveNet" />
+      </a>
+      <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" aria-label="Collapse sidebar">
+        <i class="bi bi-chevron-left"></i>
+      </button>
+    </div>
+
+    <nav class="sidebar-nav" aria-label="Donor navigation">
+      <ul>
+        <li><a href="donor-dashboard.html" class="sidebar-link"><i class="bi bi-grid-1x2"></i><span>Dashboard</span></a></li>
+        <li><a href="donor-post-item.html" class="sidebar-link"><i class="bi bi-plus-circle"></i><span>Post New Item</span></a></li>
+        <li><a href="donor-my-items.html" class="sidebar-link"><i class="bi bi-box-seam"></i><span>My Items</span></a></li>
+        <li><a href="donor-requests.html" class="sidebar-link active"><i class="bi bi-inbox"></i><span>Requests Received</span></a></li>
+        <li>
+          <a href="donor-messages.html" class="sidebar-link">
+            <i class="bi bi-chat-left-text"></i><span>Messages</span>
+            <span class="nav-badge d-none" id="msgBadge">0</span>
+          </a>
+        </li>
+        <li><a href="donor-ratings.html" class="sidebar-link"><i class="bi bi-star"></i><span>Ratings &amp; Feedback</span></a></li>
+        <li><a href="donor-profile.html" class="sidebar-link"><i class="bi bi-person-gear"></i><span>Profile Settings</span></a></li>
+      </ul>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <button class="sidebar-link sidebar-bottom-link" id="switchAccountBtn" type="button">
+        <i class="bi bi-arrow-left-right"></i><span>Switch to Recipient</span>
+      </button>
+      <button class="sidebar-link sidebar-bottom-link logout-link" id="logoutBtn" type="button">
+        <i class="bi bi-box-arrow-right"></i><span>Logout</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ══════════════════════════════════════ MAIN -->
+  <div class="gn-main" id="gnMain">
+
+    <header class="gn-topbar">
+      <div class="topbar-left">
+        <button class="hamburger-btn d-lg-none" id="hamburgerBtn" aria-label="Open sidebar">
+          <i class="bi bi-list"></i>
+        </button>
+        <div class="topbar-greeting">
+          <h1>Requests Received</h1>
+          <p>Review and respond to donation requests from recipients.</p>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="notif-btn" aria-label="Notifications">
+          <i class="bi bi-bell"></i>
+          <span class="notif-badge d-none" id="notifBadge">0</span>
+        </button>
+        <div class="user-chip">
+          <div class="user-chip-avatar" id="userAvatar">?</div>
+          <div class="user-chip-info">
+            <span class="user-chip-name"  id="userName">—</span>
+            <span class="user-chip-email" id="userEmail">—</span>
+          </div>
+          <i class="bi bi-chevron-down"></i>
+        </div>
+      </div>
+    </header>
+
+    <main class="gn-content">
+
+      <!-- Metric summary cards -->
+      <div class="metrics-row" id="metricsRow">
+        <div class="metric-card">
+          <div class="metric-icon brown"><i class="bi bi-inbox"></i></div>
+          <div><p class="metric-text-label">Total Requests</p><p class="metric-text-value" id="metricTotal">—</p></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon amber"><i class="bi bi-clock"></i></div>
+          <div><p class="metric-text-label">Pending</p><p class="metric-text-value" id="metricPending">—</p></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon green"><i class="bi bi-check-circle"></i></div>
+          <div><p class="metric-text-label">Approved</p><p class="metric-text-value" id="metricApproved">—</p></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon red"><i class="bi bi-x-circle"></i></div>
+          <div><p class="metric-text-label">Declined</p><p class="metric-text-value" id="metricDeclined">—</p></div>
+        </div>
+      </div>
+
+      <!-- Filter tabs -->
+      <div class="filter-row">
+        <div class="filter-tabs" id="filterTabs">
+          <button class="filter-tab active" data-filter="all">All Requests <span class="tab-count" id="countAll">0</span></button>
+          <button class="filter-tab" data-filter="pending">Pending <span class="tab-count" id="countPending">0</span></button>
+          <button class="filter-tab" data-filter="approved">Approved <span class="tab-count" id="countApproved">0</span></button>
+          <button class="filter-tab" data-filter="collected">Collected <span class="tab-count" id="countCollected">0</span></button>
+          <button class="filter-tab" data-filter="declined">Declined <span class="tab-count" id="countDeclined">0</span></button>
+        </div>
+      </div>
+
+      <!-- Requests list (skeletons → real rows → empty) -->
+      <div id="requestsList">
+        <div class="requests-list">
+          <div class="skeleton skel-req"></div>
+          <div class="skeleton skel-req"></div>
+          <div class="skeleton skel-req"></div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ══════════════════════════════════════ APPROVE MODAL -->
+  <div class="modal-backdrop-custom" id="approveModal">
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="approveModalTitle">
+      <div class="modal-inner">
+        <div class="modal-title-row">
+          <h2 id="approveModalTitle"><i class="bi bi-check-circle-fill" style="color:var(--success-700);margin-right:6px;"></i>Approve Request</h2>
+          <button class="modal-close" id="approveCloseBtn" aria-label="Close"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <p class="modal-subtitle" id="approveSubtitle">Are you sure you want to approve this request?</p>
+
+        <div class="approve-info-box">
+          <h4>What happens next?</h4>
+          <ul>
+            <li><i class="bi bi-check-circle-fill"></i><span id="approveRequesterName">The requester</span> will be notified.</li>
+            <li><i class="bi bi-check-circle-fill"></i>Contact details will be shared.</li>
+            <li><i class="bi bi-check-circle-fill"></i>You can coordinate pickup details.</li>
+            <li><i class="bi bi-check-circle-fill"></i>Other pending requests for this item will be declined automatically.</li>
+          </ul>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-modal-cancel" id="approveCancelBtn">Cancel</button>
+          <button class="btn-modal-approve" id="approveConfirmBtn">Approve Request</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ DECLINE MODAL -->
+  <div class="modal-backdrop-custom" id="declineModal">
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="declineModalTitle">
+      <div class="modal-inner">
+        <div class="modal-title-row">
+          <h2 id="declineModalTitle">Decline Request</h2>
+          <button class="modal-close" id="declineCloseBtn" aria-label="Close"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <p class="modal-subtitle">Please provide a reason for declining this request. This helps recipients understand and find alternative options.</p>
+
+        <div class="decline-warning">
+          <i class="bi bi-exclamation-circle-fill"></i>
+          <p><strong>Important:</strong> The recipient will be notified of your decision. Providing a clear reason helps them understand and find alternatives.</p>
+        </div>
+
+        <div class="modal-field">
+          <label class="modal-label">Reason for Declining</label>
+          <div class="radio-group" id="declineReasonGroup">
+            <label class="radio-option">
+              <input type="radio" name="declineReason" value="Item No Longer Available" />
+              <div class="radio-option-text">
+                <strong>Item No Longer Available</strong>
+                <span>The item has been claimed or is no longer available.</span>
+              </div>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="declineReason" value="Scheduling Conflict" />
+              <div class="radio-option-text">
+                <strong>Scheduling Conflict</strong>
+                <span>Unable to coordinate group timing.</span>
+              </div>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="declineReason" value="Location/Distance Issue" />
+              <div class="radio-option-text">
+                <strong>Location/Distance Issue</strong>
+                <span>Pickup location is too far or inaccessible.</span>
+              </div>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="declineReason" value="Other Reason" />
+              <div class="radio-option-text">
+                <strong>Other Reason</strong>
+                <span>Different reason (please specify below).</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div class="modal-field">
+          <label class="modal-label" for="declineNotes">Additional Details <span style="font-weight:400;color:var(--neutral-400)">(optional)</span></label>
+          <textarea id="declineNotes" class="modal-textarea" placeholder="Provide more information to help the recipient understand your decision..."></textarea>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-modal-cancel" id="declineCancelBtn">Cancel</button>
+          <button class="btn-modal-decline" id="declineConfirmBtn">Decline Request</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ COLLECT MODAL -->
+  <div class="modal-backdrop-custom" id="collectModal">
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="collectModalTitle">
+      <div class="modal-inner">
+        <div class="modal-title-row">
+          <h2 id="collectModalTitle">Mark as Collected</h2>
+          <button class="modal-close" id="collectCloseBtn" aria-label="Close"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <p class="modal-subtitle" id="collectSubtitle">Confirm the item has been collected.</p>
+
+        <div class="collect-ready-box">
+          <i class="bi bi-check-circle-fill"></i>
+          <div>
+            <strong>Ready to complete!</strong>
+            <span>You must be ready to accept the item and notify the recipient.</span>
+          </div>
+        </div>
+
+        <div class="modal-field">
+          <label class="modal-label" for="collectNotes">Collection Notes <span style="font-weight:400;color:var(--neutral-400)">(optional)</span></label>
+          <textarea id="collectNotes" class="modal-textarea" placeholder="Add any notes about the collection (e.g. condition, recipient feedback, etc.)"></textarea>
+          <p class="modal-note">These notes will be saved to your donation history.</p>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-modal-cancel" id="collectCancelBtn">Cancel</button>
+          <button class="btn-modal-collect" id="collectConfirmBtn">Confirm Collection</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script type="module">
+    import { auth, db }      from '../js/firebase-config.js';
+    import { showToast, escapeHtml } from '../js/utils.js';
+    import { onAuthStateChanged, signOut }
+      from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+    import {
+      doc, getDoc, getDocs, addDoc, updateDoc, writeBatch,
+      collection, query, where, serverTimestamp
+    } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+    // ── State ──────────────────────────────────────────────────
+    let currentUser   = null;
+    let allRequests   = [];
+    let itemsMap      = {};   // itemId  → item data
+    let usersMap      = {};   // userId  → user data
+    let activeFilter  = 'all';
+    let pendingAction = null; // { type, requestId }
+
+    // ── Sidebar ────────────────────────────────────────────────
+    const sidebar      = document.getElementById('sidebar');
+    const gnMain       = document.getElementById('gnMain');
+    const collapseBtn  = document.getElementById('sidebarCollapseBtn');
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const overlay      = document.getElementById('sidebarOverlay');
+
+    collapseBtn.addEventListener('click', () => { sidebar.classList.toggle('collapsed'); gnMain.classList.toggle('sidebar-collapsed'); });
+    hamburgerBtn.addEventListener('click', () => { sidebar.classList.add('mobile-open'); overlay.classList.add('active'); });
+    overlay.addEventListener('click', () => { sidebar.classList.remove('mobile-open'); overlay.classList.remove('active'); });
+
+    // ── Auth ───────────────────────────────────────────────────
+    onAuthStateChanged(auth, async user => {
+      if (!user) { window.location.href = 'login.html'; return; }
+      currentUser = user;
+
+      const userSnap = await getDoc(doc(db, 'users', user.uid));
+      if (!userSnap.exists()) { window.location.href = 'login.html'; return; }
+      const userData = userSnap.data();
+      if (userData.role === 'admin') { window.location.href = 'admin-dashboard.html'; return; }
+
+      populateUserInfo(userData, user);
+      await loadRequests(user.uid);
+    });
+
+    function populateUserInfo(data, user) {
+      const fullName    = data.fullName || data.firstName || 'User';
+      const parts       = fullName.trim().split(/\s+/);
+      const displayName = parts.length > 1 ? `${parts[0]} ${parts[parts.length-1][0]}.` : parts[0];
+      const avatarEl    = document.getElementById('userAvatar');
+      if (data.photoURL) {
+        avatarEl.innerHTML = `<img src="${escapeHtml(data.photoURL)}" alt="${escapeHtml(fullName)}" />`;
+      } else {
+        avatarEl.textContent = fullName[0].toUpperCase();
+      }
+      document.getElementById('userName').textContent  = displayName;
+      document.getElementById('userEmail').textContent = user.email || '';
+    }
+
+    // ── Load data ──────────────────────────────────────────────
+    async function loadRequests(uid) {
+      try {
+        const reqSnap = await getDocs(
+          query(collection(db, 'requests'), where('donorId', '==', uid))
+        );
+        allRequests = reqSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+        // Sort by dateRequested desc (client-side to avoid composite index)
+        allRequests.sort((a, b) => {
+          const ta = a.dateRequested?.toDate?.() ?? new Date(0);
+          const tb = b.dateRequested?.toDate?.() ?? new Date(0);
+          return tb - ta;
+        });
+
+        // Batch fetch all referenced items and users in parallel
+        const itemIds = [...new Set(allRequests.map(r => r.itemId).filter(Boolean))];
+        const userIds = [...new Set(allRequests.map(r => r.recipientId).filter(Boolean))];
+
+        await Promise.all([
+          ...itemIds.map(async id => {
+            try {
+              const snap = await getDoc(doc(db, 'items', id));
+              if (snap.exists()) itemsMap[id] = snap.data();
+            } catch { /* skip missing */ }
+          }),
+          ...userIds.map(async id => {
+            try {
+              const snap = await getDoc(doc(db, 'users', id));
+              if (snap.exists()) usersMap[id] = snap.data();
+            } catch { /* skip missing */ }
+          }),
+        ]);
+
+        updateCounts();
+        renderRequests(activeFilter);
+
+      } catch (err) {
+        console.error('Load requests error:', err);
+        showToast('Failed to load requests. Please refresh.', 'error');
+        document.getElementById('requestsList').innerHTML =
+          '<p style="color:var(--neutral-400);font-size:var(--text-sm);padding:40px 0;text-align:center">Could not load requests. Please refresh.</p>';
+      }
+    }
+
+    // ── Counts ─────────────────────────────────────────────────
+    function updateCounts() {
+      const count = status => allRequests.filter(r => (r.approvalStatus || 'pending').toLowerCase() === status).length;
+      document.getElementById('countAll').textContent      = allRequests.length;
+      document.getElementById('countPending').textContent  = count('pending');
+      document.getElementById('countApproved').textContent = count('approved');
+      document.getElementById('countCollected').textContent= count('collected');
+      document.getElementById('countDeclined').textContent = count('declined');
+
+      document.getElementById('metricTotal').textContent   = allRequests.length;
+      document.getElementById('metricPending').textContent = count('pending');
+      document.getElementById('metricApproved').textContent= count('approved');
+      document.getElementById('metricDeclined').textContent= count('declined');
+    }
+
+    // ── Filter tabs ────────────────────────────────────────────
+    document.getElementById('filterTabs').addEventListener('click', e => {
+      const tab = e.target.closest('.filter-tab');
+      if (!tab) return;
+      document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      activeFilter = tab.dataset.filter;
+      renderRequests(activeFilter);
+    });
+
+    // ── Render list ────────────────────────────────────────────
+    function renderRequests(filter) {
+      const list = document.getElementById('requestsList');
+
+      const filtered = filter === 'all'
+        ? allRequests
+        : allRequests.filter(r => (r.approvalStatus || 'pending').toLowerCase() === filter);
+
+      if (allRequests.length === 0) {
+        list.innerHTML = `
+          <div class="empty-state">
+            <i class="bi bi-inbox empty-icon"></i>
+            <h3>No requests yet.</h3>
+            <p>When recipients request your items, they will appear here.</p>
+          </div>`;
+        return;
+      }
+
+      if (filtered.length === 0) {
+        list.innerHTML = `
+          <div class="empty-state">
+            <i class="bi bi-funnel empty-icon" style="font-size:2rem;color:var(--neutral-300);"></i>
+            <h3>No ${filter} requests.</h3>
+            <p>You have no requests with this status.</p>
+          </div>`;
+        return;
+      }
+
+      list.innerHTML = `<div class="requests-list">${filtered.map(req => buildRow(req)).join('')}</div>`;
+
+      // Attach action listeners
+      list.querySelectorAll('.btn-approve-req').forEach(btn =>
+        btn.addEventListener('click', () => openApproveModal(btn.dataset.id))
+      );
+      list.querySelectorAll('.btn-decline-req').forEach(btn =>
+        btn.addEventListener('click', () => openDeclineModal(btn.dataset.id))
+      );
+      list.querySelectorAll('.btn-collect-req').forEach(btn =>
+        btn.addEventListener('click', () => openCollectModal(btn.dataset.id))
+      );
+      list.querySelectorAll('.btn-msg-req').forEach(btn =>
+        btn.addEventListener('click', () => openMessageConversation(btn.dataset.itemId, btn.dataset.recipientId, btn))
+      );
+    }
+
+    // ── Build row HTML ─────────────────────────────────────────
+    function buildRow(req) {
+      const status      = (req.approvalStatus || 'pending').toLowerCase();
+      const item        = itemsMap[req.itemId]   || {};
+      const recipient   = usersMap[req.recipientId] || {};
+      const imgSrc      = item.imageURL || (item.imageURLs && item.imageURLs[0]) || '../assets/images/Wooden Dining Chair.png';
+      const itemName    = item.title || item.itemName || 'Unknown Item';
+      const itemId      = req.itemId || '';
+      const recipName   = formatRecipName(recipient);
+      const recipInit   = recipName[0]?.toUpperCase() || '?';
+      const photoURL    = recipient.photoURL || '';
+      const ago         = timeAgo(req.dateRequested);
+      const dateStr     = formatReqDate(req.dateRequested);
+      const message     = req.message || req.requestMessage || '';
+      const statusCls   = `req-status-${status}`;
+      const statusLabel = status.charAt(0).toUpperCase() + status.slice(1);
+
+      const avatarHtml = photoURL
+        ? `<div class="req-avatar"><img src="${escapeHtml(photoURL)}" alt="${escapeHtml(recipName)}" /></div>`
+        : `<div class="req-avatar">${escapeHtml(recipInit)}</div>`;
+
+      let actionsHtml = `<a href="item-detail.html?id=${escapeHtml(itemId)}" class="btn-view-item" target="_blank">View Item <i class="bi bi-arrow-up-right"></i></a>`;
+      if (status === 'pending') {
+        actionsHtml += `
+          <button class="btn-approve-req" data-id="${escapeHtml(req.id)}"><i class="bi bi-check-lg"></i> Approve</button>
+          <button class="btn-decline-req" data-id="${escapeHtml(req.id)}"><i class="bi bi-x-lg"></i> Decline</button>`;
+      } else if (status === 'approved') {
+        actionsHtml += `
+          <button class="btn-collect-req" data-id="${escapeHtml(req.id)}"><i class="bi bi-bag-check"></i> Mark as Collected</button>
+          <button class="btn-msg-req" data-id="${escapeHtml(req.id)}" data-item-id="${escapeHtml(itemId)}" data-recipient-id="${escapeHtml(req.recipientId || '')}"><i class="bi bi-chat-dots"></i> Message</button>`;
+      }
+
+      return `
+        <div class="req-card" data-status="${escapeHtml(status)}" data-id="${escapeHtml(req.id)}">
+          <img src="${escapeHtml(imgSrc)}"
+               alt="${escapeHtml(itemName)}"
+               class="req-thumb"
+               onerror="this.src='../assets/images/Wooden Dining Chair.png'" />
+          <div class="req-info">
+            <div class="req-header">
+              <div class="req-requester-row">
+                ${avatarHtml}
+                <div>
+                  <span class="req-name">${escapeHtml(recipName)}</span>
+                  <span class="req-time">· ${escapeHtml(ago)}</span>
+                </div>
+              </div>
+              <span class="req-status-badge ${statusCls}">${escapeHtml(statusLabel)}</span>
+            </div>
+            <p class="req-item-name">Requesting: <strong>${escapeHtml(itemName)}</strong></p>
+            ${message ? `<p class="req-message">"${escapeHtml(message)}"</p>` : ''}
+            <p class="req-date">${escapeHtml(dateStr)}</p>
+          </div>
+          <div class="req-actions">${actionsHtml}</div>
+        </div>`;
+    }
+
+    // ── Helpers ────────────────────────────────────────────────
+    function formatRecipName(data) {
+      const full  = data.fullName || data.firstName || 'Unknown';
+      const parts = full.trim().split(/\s+/);
+      return parts.length > 1 ? `${parts[0]} ${parts[parts.length-1][0]}.` : parts[0];
+    }
+
+    function formatReqDate(ts) {
+      if (!ts) return '—';
+      const d = ts.toDate ? ts.toDate() : new Date(ts);
+      return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+
+    function timeAgo(ts) {
+      if (!ts) return '';
+      const d       = ts.toDate ? ts.toDate() : new Date(ts);
+      const diffMs  = Date.now() - d.getTime();
+      const diffMin = Math.floor(diffMs / 60000);
+      const diffHr  = Math.floor(diffMin / 60);
+      const diffDay = Math.floor(diffHr / 24);
+      if (diffMin < 60)  return `${diffMin}m ago`;
+      if (diffHr < 24)   return `${diffHr}h ago`;
+      if (diffDay === 1) return 'yesterday';
+      if (diffDay < 30)  return `${diffDay}d ago`;
+      return `${Math.floor(diffDay/30)}mo ago`;
+    }
+
+    // ── Open / create conversation from request ────────────────
+    async function openMessageConversation(reqItemId, recipientId, btn) {
+      if (!currentUser || !reqItemId || !recipientId) return;
+      btn.disabled = true;
+      try {
+        const snap = await getDocs(query(
+          collection(db, 'conversations'),
+          where('participantIds', 'array-contains', currentUser.uid),
+          where('itemId', '==', reqItemId)
+        ));
+        let convId;
+        if (!snap.empty) {
+          convId = snap.docs[0].id;
+        } else {
+          const item = itemsMap[reqItemId] || {};
+          const ref = await addDoc(collection(db, 'conversations'), {
+            participantIds:  [currentUser.uid, recipientId],
+            itemId:          reqItemId,
+            itemTitle:       item.title || item.itemName || '',
+            lastMessage:     '',
+            lastMessageTime: serverTimestamp(),
+            unreadCounts:    { [currentUser.uid]: 0, [recipientId]: 0 },
+            createdAt:       serverTimestamp(),
+          });
+          convId = ref.id;
+        }
+        window.location.href = `donor-messages.html?conversationId=${convId}`;
+      } catch (err) {
+        console.error('Failed to open conversation:', err);
+        window.location.href = 'donor-messages.html';
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    // ══════════════════════════════════════ APPROVE MODAL
+    const approveModal = document.getElementById('approveModal');
+
+    function openApproveModal(requestId) {
+      pendingAction = { type: 'approve', requestId };
+      const req       = allRequests.find(r => r.id === requestId);
+      const recipient = usersMap[req?.recipientId] || {};
+      const name      = formatRecipName(recipient);
+      document.getElementById('approveSubtitle').textContent =
+        `Are you sure you want to approve this request from ${name}?`;
+      document.getElementById('approveRequesterName').textContent = name;
+      approveModal.classList.add('show');
+    }
+
+    function closeApproveModal() { approveModal.classList.remove('show'); pendingAction = null; }
+
+    document.getElementById('approveCloseBtn').addEventListener('click', closeApproveModal);
+    document.getElementById('approveCancelBtn').addEventListener('click', closeApproveModal);
+    approveModal.addEventListener('click', e => { if (e.target === approveModal) closeApproveModal(); });
+
+    document.getElementById('approveConfirmBtn').addEventListener('click', async () => {
+      if (!pendingAction || pendingAction.type !== 'approve') return;
+      const btn = document.getElementById('approveConfirmBtn');
+      btn.disabled = true; btn.textContent = 'Approving…';
+
+      try {
+        const requestId = pendingAction.requestId;
+        const req       = allRequests.find(r => r.id === requestId);
+
+        const batch = writeBatch(db);
+
+        // Approve this request
+        batch.update(doc(db, 'requests', requestId), { approvalStatus: 'approved' });
+
+        // Set item status to 'on hold'
+        if (req.itemId) {
+          batch.update(doc(db, 'items', req.itemId), { status: 'on hold' });
+        }
+
+        // Auto-decline all other pending requests for the same item
+        const otherPending = allRequests.filter(r =>
+          r.id !== requestId &&
+          r.itemId === req.itemId &&
+          (r.approvalStatus || 'pending').toLowerCase() === 'pending'
+        );
+        otherPending.forEach(r => {
+          batch.update(doc(db, 'requests', r.id), { approvalStatus: 'declined' });
+        });
+
+        await batch.commit();
+
+        // Update local state
+        const idx = allRequests.findIndex(r => r.id === requestId);
+        if (idx !== -1) allRequests[idx].approvalStatus = 'approved';
+        otherPending.forEach(r => { r.approvalStatus = 'declined'; });
+        if (req.itemId && itemsMap[req.itemId]) itemsMap[req.itemId].status = 'on hold';
+
+        closeApproveModal();
+        updateCounts();
+        renderRequests(activeFilter);
+        showToast(`Request approved! ${otherPending.length > 0 ? `${otherPending.length} other pending request(s) declined automatically.` : ''}`, 'success');
+
+      } catch (err) {
+        console.error('Approve error:', err);
+        showToast('Failed to approve request. Please try again.', 'error');
+      } finally {
+        btn.disabled = false; btn.textContent = 'Approve Request';
+      }
+    });
+
+    // ══════════════════════════════════════ DECLINE MODAL
+    const declineModal = document.getElementById('declineModal');
+
+    function openDeclineModal(requestId) {
+      pendingAction = { type: 'decline', requestId };
+      // Reset form
+      document.querySelectorAll('input[name=declineReason]').forEach(r => r.checked = false);
+      document.getElementById('declineNotes').value = '';
+      declineModal.classList.add('show');
+    }
+
+    function closeDeclineModal() { declineModal.classList.remove('show'); pendingAction = null; }
+
+    document.getElementById('declineCloseBtn').addEventListener('click', closeDeclineModal);
+    document.getElementById('declineCancelBtn').addEventListener('click', closeDeclineModal);
+    declineModal.addEventListener('click', e => { if (e.target === declineModal) closeDeclineModal(); });
+
+    document.getElementById('declineConfirmBtn').addEventListener('click', async () => {
+      if (!pendingAction || pendingAction.type !== 'decline') return;
+      const btn = document.getElementById('declineConfirmBtn');
+      btn.disabled = true; btn.textContent = 'Declining…';
+
+      try {
+        const requestId   = pendingAction.requestId;
+        const req         = allRequests.find(r => r.id === requestId);
+        const reasonEl    = document.querySelector('input[name=declineReason]:checked');
+        const reason      = reasonEl?.value || 'Other Reason';
+        const notes       = document.getElementById('declineNotes').value.trim();
+
+        await updateDoc(doc(db, 'requests', requestId), {
+          approvalStatus: 'declined',
+          declineReason:  reason,
+          declineNotes:   notes,
+        });
+
+        // If item was 'requested' and no other pending requests → revert to 'available'
+        if (req.itemId) {
+          const otherPending = allRequests.filter(r =>
+            r.id !== requestId &&
+            r.itemId === req.itemId &&
+            (r.approvalStatus || 'pending').toLowerCase() === 'pending'
+          );
+          const item = itemsMap[req.itemId];
+          if (item && (item.status || '').toLowerCase() === 'requested' && otherPending.length === 0) {
+            await updateDoc(doc(db, 'items', req.itemId), { status: 'available' });
+            itemsMap[req.itemId].status = 'available';
+          }
+        }
+
+        // Update local state
+        const idx = allRequests.findIndex(r => r.id === requestId);
+        if (idx !== -1) Object.assign(allRequests[idx], { approvalStatus: 'declined', declineReason: reason });
+
+        closeDeclineModal();
+        updateCounts();
+        renderRequests(activeFilter);
+        showToast('Request declined.', 'success');
+
+      } catch (err) {
+        console.error('Decline error:', err);
+        showToast('Failed to decline request. Please try again.', 'error');
+      } finally {
+        btn.disabled = false; btn.textContent = 'Decline Request';
+      }
+    });
+
+    // ══════════════════════════════════════ COLLECT MODAL
+    const collectModal = document.getElementById('collectModal');
+
+    function openCollectModal(requestId) {
+      pendingAction = { type: 'collect', requestId };
+      const req     = allRequests.find(r => r.id === requestId);
+      const item    = itemsMap[req?.itemId]        || {};
+      const recip   = usersMap[req?.recipientId]   || {};
+      const itemName  = item.title || item.itemName || 'this item';
+      const recipName = formatRecipName(recip);
+      document.getElementById('collectSubtitle').textContent =
+        `Confirm ${recipName} has collected the ${itemName}.`;
+      document.getElementById('collectNotes').value = '';
+      collectModal.classList.add('show');
+    }
+
+    function closeCollectModal() { collectModal.classList.remove('show'); pendingAction = null; }
+
+    document.getElementById('collectCloseBtn').addEventListener('click', closeCollectModal);
+    document.getElementById('collectCancelBtn').addEventListener('click', closeCollectModal);
+    collectModal.addEventListener('click', e => { if (e.target === collectModal) closeCollectModal(); });
+
+    document.getElementById('collectConfirmBtn').addEventListener('click', async () => {
+      if (!pendingAction || pendingAction.type !== 'collect') return;
+      const btn = document.getElementById('collectConfirmBtn');
+      btn.disabled = true; btn.textContent = 'Saving…';
+
+      try {
+        const requestId = pendingAction.requestId;
+        const req       = allRequests.find(r => r.id === requestId);
+        const notes     = document.getElementById('collectNotes').value.trim();
+
+        const batch = writeBatch(db);
+        batch.update(doc(db, 'requests', requestId), {
+          approvalStatus:  'collected',
+          collectionNotes: notes,
+          collectedAt:     new Date(),
+        });
+        if (req.itemId) {
+          batch.update(doc(db, 'items', req.itemId), { status: 'collected' });
+        }
+        await batch.commit();
+
+        // Update local state
+        const idx = allRequests.findIndex(r => r.id === requestId);
+        if (idx !== -1) allRequests[idx].approvalStatus = 'collected';
+        if (req.itemId && itemsMap[req.itemId]) itemsMap[req.itemId].status = 'collected';
+
+        closeCollectModal();
+        updateCounts();
+        renderRequests(activeFilter);
+        showToast('Marked as collected! Thank you for your donation.', 'success');
+
+      } catch (err) {
+        console.error('Collect error:', err);
+        showToast('Failed to save. Please try again.', 'error');
+      } finally {
+        btn.disabled = false; btn.textContent = 'Confirm Collection';
+      }
+    });
+
+    // ══════════════════════════════════════ SWITCH / LOGOUT
+    document.getElementById('switchAccountBtn').addEventListener('click', async () => {
+      if (!currentUser) return;
+      try {
+        await updateDoc(doc(db, 'users', currentUser.uid), { role: 'recipient' });
+        window.location.href = 'recipient-dashboard.html';
+      } catch { showToast('Failed to switch account.', 'error'); }
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      try { await signOut(auth); window.location.href = 'login.html'; }
+      catch { showToast('Logout failed.', 'error'); }
+    });
+  </script>
+</body>
+</html>

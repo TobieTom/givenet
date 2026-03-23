@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Items — GiveNet</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      display: flex;
+      min-height: 100vh;
+      background: var(--color-white);
+      color: var(--color-text);
+      overflow-x: hidden;
+    }
+
+    /* ══════════════════════════════════════ SIDEBAR */
+    .gn-sidebar {
+      width: 260px; flex-shrink: 0; background: #FEFAF3;
+      display: flex; flex-direction: column; height: 100vh;
+      position: fixed; top: 0; left: 0; z-index: 300;
+      transition: width var(--transition-slow), transform var(--transition-slow);
+      overflow: hidden;
+    }
+    .gn-sidebar.collapsed { width: 72px; }
+    .sidebar-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 16px 14px; flex-shrink: 0;
+    }
+    .sidebar-logo img { height: 36px; width: auto; display: block; }
+    .sidebar-collapse-btn {
+      background: none; border: none; cursor: pointer;
+      width: 32px; height: 32px; border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--neutral-400); font-size: 1rem;
+      transition: background var(--transition-fast), color var(--transition-fast); flex-shrink: 0;
+    }
+    .sidebar-collapse-btn:hover { background: var(--gray-100); color: var(--text-800); }
+    .gn-sidebar.collapsed .sidebar-collapse-btn i { transform: rotate(180deg); }
+    .sidebar-nav { flex: 1; padding: 4px 12px; overflow-y: auto; }
+    .sidebar-nav ul { list-style: none; }
+    .sidebar-nav ul li { margin-bottom: 2px; }
+    .sidebar-link {
+      display: flex; align-items: center; gap: 12px; padding: 11px 14px;
+      border-radius: var(--radius-lg); text-decoration: none;
+      font-size: var(--text-sm); font-weight: 600; color: var(--text-600);
+      transition: background var(--transition-fast), color var(--transition-fast);
+      white-space: nowrap; width: 100%; background: none; border: none;
+      cursor: pointer; font-family: inherit; text-align: left;
+    }
+    .sidebar-link i { font-size: 1.05rem; flex-shrink: 0; }
+    .sidebar-link:hover { background: var(--gray-100); color: var(--text-900); text-decoration: none; }
+    .sidebar-link.active { background: var(--primary-800); color: var(--color-white); }
+    .sidebar-link.active:hover { background: var(--primary-900); color: var(--color-white); }
+    .nav-badge {
+      margin-left: auto; background: var(--error-500); color: white;
+      font-size: 10px; font-weight: 700; padding: 2px 7px;
+      border-radius: var(--radius-full); flex-shrink: 0;
+    }
+    .gn-sidebar.collapsed .sidebar-link span,
+    .gn-sidebar.collapsed .nav-badge,
+    .gn-sidebar.collapsed .sidebar-logo img { opacity: 0; width: 0; overflow: hidden; }
+    .gn-sidebar.collapsed .sidebar-link { justify-content: center; padding: 11px; gap: 0; }
+    .gn-sidebar.collapsed .sidebar-header { justify-content: center; }
+    .gn-sidebar.collapsed .sidebar-collapse-btn { margin: 0 auto; }
+    .sidebar-bottom { padding: 12px; border-top: 1px solid var(--gray-200); flex-shrink: 0; }
+    .sidebar-bottom-link { color: var(--neutral-500); margin-bottom: 2px; }
+    .sidebar-bottom-link:hover { color: var(--text-900); background: var(--gray-100); }
+    .sidebar-bottom-link.logout-link:hover { background: var(--error-50); color: var(--error-600); }
+    .sidebar-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.35); z-index: 299;
+    }
+    .sidebar-overlay.active { display: block; }
+
+    /* ══════════════════════════════════════ MAIN */
+    .gn-main {
+      margin-left: 260px; flex: 1; display: flex; flex-direction: column;
+      min-height: 100vh; min-width: 0; transition: margin-left var(--transition-slow);
+    }
+    .gn-main.sidebar-collapsed { margin-left: 72px; }
+
+    /* ── Topbar ───────────────────────────────────────────────── */
+    .gn-topbar {
+      height: 64px; background: var(--color-white);
+      border-bottom: 1px solid var(--gray-200);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 28px; flex-shrink: 0; position: sticky; top: 0; z-index: 200;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 14px; }
+    .hamburger-btn {
+      background: none; border: none; font-size: 1.4rem;
+      color: var(--text-700); cursor: pointer;
+      display: flex; align-items: center; justify-content: center; padding: 4px;
+    }
+    .topbar-greeting h1 { font-size: var(--text-lg); font-weight: 800; color: var(--text-900); line-height: 1.2; }
+    .topbar-greeting p  { font-size: var(--text-xs); color: var(--neutral-500); margin: 0; }
+    .topbar-right { display: flex; align-items: center; gap: 16px; }
+    .notif-btn {
+      position: relative; background: none; border: none; cursor: pointer;
+      width: 38px; height: 38px; border-radius: var(--radius-full);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-600); font-size: 1.1rem; transition: background var(--transition-fast);
+    }
+    .notif-btn:hover { background: var(--gray-100); }
+    .notif-badge {
+      position: absolute; top: 4px; right: 4px;
+      background: var(--error-500); color: white; font-size: 9px; font-weight: 700;
+      min-width: 16px; height: 16px; border-radius: var(--radius-full);
+      display: flex; align-items: center; justify-content: center; border: 2px solid white;
+    }
+    .user-chip {
+      display: flex; align-items: center; gap: 10px; cursor: pointer;
+      padding: 6px 10px; border-radius: var(--radius-lg); transition: background var(--transition-fast);
+    }
+    .user-chip:hover { background: var(--gray-100); }
+    .user-chip-avatar {
+      width: 36px; height: 36px; border-radius: var(--radius-full);
+      background: var(--primary-200); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: var(--text-sm); color: var(--color-primary); overflow: hidden;
+    }
+    .user-chip-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .user-chip-name  { font-size: var(--text-sm); font-weight: 700; color: var(--text-900); display: block; line-height: 1.2; }
+    .user-chip-email { font-size: 10px; color: var(--neutral-400); display: block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .user-chip .bi-chevron-down { font-size: 0.75rem; color: var(--neutral-400); }
+
+    /* ── Content ─────────────────────────────────────────────── */
+    .gn-content { padding: 28px; flex: 1; background: var(--color-white); }
+
+    /* ── Filter row ──────────────────────────────────────────── */
+    .filter-row {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 24px; gap: 12px; flex-wrap: wrap;
+    }
+    .filter-tabs {
+      display: flex; align-items: center; gap: 4px;
+      background: var(--gray-50); border: 1px solid var(--gray-200);
+      border-radius: var(--radius-lg); padding: 4px; flex-wrap: wrap;
+    }
+    .filter-tab {
+      padding: 7px 14px; border-radius: var(--radius-md);
+      border: none; background: none; cursor: pointer;
+      font-family: inherit; font-size: var(--text-sm); font-weight: 600;
+      color: var(--neutral-500); transition: background var(--transition-fast), color var(--transition-fast);
+      white-space: nowrap; display: flex; align-items: center; gap: 6px;
+    }
+    .filter-tab:hover { color: var(--text-900); }
+    .filter-tab.active { background: var(--color-white); color: var(--text-900); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+    .tab-count {
+      background: var(--gray-200); color: var(--neutral-500);
+      font-size: 11px; font-weight: 700; padding: 1px 7px;
+      border-radius: var(--radius-full); line-height: 1.6;
+    }
+    .filter-tab.active .tab-count { background: var(--primary-100); color: var(--color-primary); }
+
+    .btn-post-new {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 10px 20px; border-radius: var(--radius-full);
+      background: var(--color-primary); color: var(--color-white);
+      font-size: var(--text-sm); font-weight: 700; text-decoration: none;
+      transition: background var(--transition-base); white-space: nowrap;
+    }
+    .btn-post-new:hover { background: var(--primary-800); color: var(--color-white); text-decoration: none; }
+
+    /* ── Items grid ──────────────────────────────────────────── */
+    .items-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    /* ── Item card ───────────────────────────────────────────── */
+    .item-card {
+      background: var(--color-white);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: box-shadow var(--transition-base);
+    }
+    .item-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+
+    .card-img-wrap {
+      position: relative; height: 180px; overflow: hidden; background: var(--gray-100);
+    }
+    .card-img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+      transition: transform var(--transition-slow);
+    }
+    .item-card:hover .card-img { transform: scale(1.03); }
+
+    /* Status badge on image */
+    .status-badge {
+      position: absolute; top: 10px; left: 10px;
+      font-size: 11px; font-weight: 700; padding: 3px 10px;
+      border-radius: var(--radius-full); text-transform: capitalize;
+    }
+    .status-pending   { background: var(--warning-100);  color: var(--warning-700); }
+    .status-available { background: var(--success-100);  color: var(--success-700); }
+    .status-requested { background: var(--primary-100);  color: var(--color-primary); }
+    .status-on-hold   { background: #DBEAFE;             color: #1D4ED8; }
+    .status-collected { background: var(--gray-100);     color: var(--neutral-500); }
+    .status-expired   { background: var(--error-100);    color: var(--error-700); }
+    .status-cancelled { background: var(--gray-200);     color: var(--text-600); }
+
+    /* Card body */
+    .card-body-gn { padding: 14px 16px 16px; }
+
+    .card-title-row {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      gap: 8px; margin-bottom: 3px;
+    }
+    .card-title {
+      font-size: var(--text-sm); font-weight: 700; color: var(--text-900);
+      line-height: 1.3; flex: 1;
+    }
+
+    /* Condition badge */
+    .cond-badge {
+      font-size: 10px; font-weight: 700; padding: 2px 9px;
+      border-radius: var(--radius-full); flex-shrink: 0; white-space: nowrap;
+    }
+    .cond-excellent { background: var(--success-100);  color: var(--success-700); }
+    .cond-good      { background: var(--gray-100);     color: var(--neutral-500); }
+    .cond-fair      { background: var(--warning-100);  color: var(--warning-700); }
+    .cond-poor      { background: var(--error-100);    color: var(--error-600); }
+
+    .card-category { font-size: var(--text-xs); color: var(--neutral-400); margin-bottom: 8px; }
+
+    .pending-notice {
+      font-size: var(--text-xs); color: var(--warning-700);
+      font-weight: 600; margin-bottom: 8px;
+      display: flex; align-items: center; gap: 4px;
+    }
+
+    .card-meta {
+      display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px;
+    }
+    .card-meta span {
+      font-size: var(--text-xs); color: var(--neutral-500);
+      display: flex; align-items: center; gap: 5px;
+    }
+    .card-meta i { font-size: 0.75rem; color: var(--neutral-400); }
+
+    .card-actions {
+      display: flex; align-items: center; gap: 8px;
+      border-top: 1px solid var(--gray-100); padding-top: 12px;
+    }
+    .btn-edit-card {
+      flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+      padding: 8px 14px; border-radius: var(--radius-md);
+      border: 1.5px solid var(--gray-300); background: none; cursor: pointer;
+      font-family: inherit; font-size: var(--text-xs); font-weight: 700; color: var(--text-700);
+      transition: background var(--transition-fast), border-color var(--transition-fast);
+    }
+    .btn-edit-card:hover { background: var(--gray-100); border-color: var(--gray-400); }
+    .btn-delete-card {
+      width: 36px; height: 36px; border-radius: var(--radius-md);
+      border: 1.5px solid var(--error-200); background: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--error-500); font-size: 0.9rem; flex-shrink: 0;
+      transition: background var(--transition-fast);
+    }
+    .btn-delete-card:hover { background: var(--error-50); border-color: var(--error-400); }
+
+    /* ── Skeleton card ───────────────────────────────────────── */
+    .skel-card { border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--gray-100); }
+    .skel-img  { height: 180px; }
+    .skel-body { padding: 14px 16px 16px; }
+    .skel-line { border-radius: var(--radius-sm); margin-bottom: 8px; }
+
+    /* ── Empty state ─────────────────────────────────────────── */
+    .empty-state {
+      grid-column: 1 / -1; text-align: center; padding: 80px 24px;
+      display: flex; flex-direction: column; align-items: center;
+    }
+    .empty-icon {
+      font-size: 3rem; color: var(--color-primary); margin-bottom: 16px; display: block;
+    }
+    .empty-state h3 { font-size: var(--text-lg); font-weight: 800; color: var(--text-800); margin-bottom: 8px; }
+    .empty-state p  { font-size: var(--text-sm); color: var(--neutral-400); margin-bottom: 24px; }
+    .btn-add-new {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 12px 28px; border-radius: var(--radius-full);
+      background: var(--color-primary); color: var(--color-white);
+      font-size: var(--text-sm); font-weight: 700; text-decoration: none;
+      transition: background var(--transition-base);
+    }
+    .btn-add-new:hover { background: var(--primary-800); color: var(--color-white); text-decoration: none; }
+
+    /* ── No filter results ───────────────────────────────────── */
+    .no-results {
+      grid-column: 1 / -1; text-align: center; padding: 60px 24px;
+      color: var(--neutral-400); font-size: var(--text-sm);
+    }
+    .no-results i { font-size: 2rem; display: block; margin-bottom: 12px; }
+
+    /* ══════════════════════════════════════ MODALS */
+    .modal-backdrop-custom {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45); z-index: 500;
+      align-items: center; justify-content: center;
+    }
+    .modal-backdrop-custom.show { display: flex; }
+
+    /* ── Edit modal ──────────────────────────────────────────── */
+    .edit-modal-box {
+      background: var(--color-white); border-radius: var(--radius-xl);
+      width: calc(100% - 48px); max-width: 480px;
+      max-height: 90vh; overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    }
+    .modal-header-gn {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      padding: 24px 24px 0;
+    }
+    .modal-header-gn h2 { font-size: var(--text-base); font-weight: 800; color: var(--text-900); margin-bottom: 4px; }
+    .modal-header-gn p  { font-size: var(--text-xs); color: var(--neutral-500); }
+    .modal-close-btn {
+      background: none; border: none; cursor: pointer; font-size: 1.1rem;
+      color: var(--neutral-400); padding: 2px; flex-shrink: 0;
+      transition: color var(--transition-fast);
+    }
+    .modal-close-btn:hover { color: var(--text-900); }
+
+    .modal-body-gn { padding: 20px 24px; }
+    .modal-field { margin-bottom: 16px; }
+    .modal-label {
+      display: block; font-size: var(--text-sm); font-weight: 700; color: var(--text-800); margin-bottom: 6px;
+    }
+    .modal-input, .modal-select, .modal-textarea {
+      width: 100%; padding: 10px 14px;
+      border: 1.5px solid var(--gray-200); border-radius: var(--radius-md);
+      font-family: inherit; font-size: var(--text-sm); color: var(--text-900);
+      background: var(--color-white); outline: none;
+      transition: border-color var(--transition-fast);
+      appearance: none; -webkit-appearance: none;
+    }
+    .modal-input:focus, .modal-select:focus, .modal-textarea:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(101,58,23,0.1);
+    }
+    .modal-input:disabled, .modal-select:disabled {
+      background: var(--gray-50); color: var(--neutral-400); cursor: not-allowed;
+    }
+    .modal-select-wrap { position: relative; }
+    .modal-select-wrap::after {
+      content: '\F282'; font-family: 'bootstrap-icons';
+      position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+      pointer-events: none; color: var(--neutral-400); font-size: 0.85rem;
+    }
+    .modal-select-wrap .modal-select { padding-right: 36px; cursor: pointer; }
+    .modal-textarea { resize: vertical; min-height: 90px; line-height: 1.6; }
+
+    .status-note { font-size: var(--text-xs); color: var(--neutral-400); margin-top: 4px; }
+
+    .modal-footer-gn {
+      display: flex; justify-content: flex-end; gap: 10px;
+      padding: 0 24px 24px;
+    }
+    .btn-modal-cancel {
+      padding: 10px 22px; border-radius: var(--radius-full);
+      border: 1.5px solid var(--gray-300); background: none;
+      color: var(--text-700); font-size: var(--text-sm); font-weight: 700;
+      font-family: inherit; cursor: pointer; transition: background var(--transition-base);
+    }
+    .btn-modal-cancel:hover { background: var(--gray-100); }
+    .btn-modal-save {
+      padding: 10px 22px; border-radius: var(--radius-full);
+      background: var(--color-primary); color: var(--color-white);
+      font-size: var(--text-sm); font-weight: 700; font-family: inherit;
+      border: none; cursor: pointer; transition: background var(--transition-base);
+    }
+    .btn-modal-save:hover { background: var(--primary-800); }
+    .btn-modal-save:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* ── Delete modal ────────────────────────────────────────── */
+    .delete-modal-box {
+      background: var(--color-white); border-radius: var(--radius-xl);
+      width: calc(100% - 48px); max-width: 400px;
+      padding: 36px 32px; text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    }
+    .delete-icon-wrap {
+      width: 60px; height: 60px; border-radius: var(--radius-full);
+      background: var(--error-100); color: var(--error-600);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; margin: 0 auto 16px;
+    }
+    .delete-modal-box h2 { font-size: var(--text-base); font-weight: 800; color: var(--text-900); margin-bottom: 8px; }
+    .delete-modal-box p  { font-size: var(--text-sm); color: var(--neutral-500); margin-bottom: 8px; line-height: 1.6; }
+    .delete-warning {
+      font-size: var(--text-xs); color: var(--warning-700);
+      background: var(--warning-100); border-radius: var(--radius-md);
+      padding: 8px 12px; margin-bottom: 8px; text-align: left;
+    }
+    .delete-modal-actions { display: flex; gap: 10px; justify-content: center; margin-top: 20px; }
+    .btn-delete-confirm {
+      padding: 10px 28px; border-radius: var(--radius-full);
+      background: var(--error-500); color: white;
+      font-size: var(--text-sm); font-weight: 700; font-family: inherit;
+      border: none; cursor: pointer; transition: background var(--transition-base);
+    }
+    .btn-delete-confirm:hover { background: var(--error-600); }
+    .btn-delete-confirm:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* ══════════════════════════════════════ RESPONSIVE */
+    @media (max-width: 1100px) { .items-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 991.98px) {
+      .gn-sidebar { transform: translateX(-100%); width: 260px !important; }
+      .gn-sidebar.mobile-open { transform: translateX(0); }
+      .gn-main { margin-left: 0 !important; }
+      .gn-topbar { padding: 0 16px; }
+      .gn-content { padding: 20px 16px; }
+      .items-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+      .user-chip-info { display: none; }
+    }
+    @media (max-width: 575.98px) {
+      .items-grid { grid-template-columns: 1fr; }
+      .filter-tabs { gap: 2px; }
+      .filter-tab { padding: 6px 10px; font-size: 11px; }
+      .topbar-greeting p { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- ══════════════════════════════════════ SIDEBAR -->
+  <aside class="gn-sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a class="sidebar-logo" href="../index.html">
+        <img src="../assets/images/logo-small.png" alt="GiveNet" />
+      </a>
+      <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" aria-label="Collapse sidebar">
+        <i class="bi bi-chevron-left"></i>
+      </button>
+    </div>
+
+    <nav class="sidebar-nav" aria-label="Donor navigation">
+      <ul>
+        <li><a href="donor-dashboard.html" class="sidebar-link"><i class="bi bi-grid-1x2"></i><span>Dashboard</span></a></li>
+        <li><a href="donor-post-item.html" class="sidebar-link"><i class="bi bi-plus-circle"></i><span>Post New Item</span></a></li>
+        <li><a href="donor-my-items.html" class="sidebar-link active"><i class="bi bi-box-seam"></i><span>My Items</span></a></li>
+        <li><a href="donor-requests.html" class="sidebar-link"><i class="bi bi-inbox"></i><span>Requests Received</span></a></li>
+        <li>
+          <a href="donor-messages.html" class="sidebar-link">
+            <i class="bi bi-chat-left-text"></i><span>Messages</span>
+            <span class="nav-badge d-none" id="msgBadge">0</span>
+          </a>
+        </li>
+        <li><a href="donor-ratings.html" class="sidebar-link"><i class="bi bi-star"></i><span>Ratings &amp; Feedback</span></a></li>
+        <li><a href="donor-profile.html" class="sidebar-link"><i class="bi bi-person-gear"></i><span>Profile Settings</span></a></li>
+      </ul>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <button class="sidebar-link sidebar-bottom-link" id="switchAccountBtn" type="button">
+        <i class="bi bi-arrow-left-right"></i><span>Switch to Recipient</span>
+      </button>
+      <button class="sidebar-link sidebar-bottom-link logout-link" id="logoutBtn" type="button">
+        <i class="bi bi-box-arrow-right"></i><span>Logout</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ══════════════════════════════════════ MAIN -->
+  <div class="gn-main" id="gnMain">
+
+    <header class="gn-topbar">
+      <div class="topbar-left">
+        <button class="hamburger-btn d-lg-none" id="hamburgerBtn" aria-label="Open sidebar">
+          <i class="bi bi-list"></i>
+        </button>
+        <div class="topbar-greeting">
+          <h1>My Items</h1>
+          <p>Manage all your posted donation items.</p>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="notif-btn" aria-label="Notifications">
+          <i class="bi bi-bell"></i>
+          <span class="notif-badge d-none" id="notifBadge">0</span>
+        </button>
+        <div class="user-chip">
+          <div class="user-chip-avatar" id="userAvatar">?</div>
+          <div class="user-chip-info">
+            <span class="user-chip-name"  id="userName">—</span>
+            <span class="user-chip-email" id="userEmail">—</span>
+          </div>
+          <i class="bi bi-chevron-down"></i>
+        </div>
+      </div>
+    </header>
+
+    <main class="gn-content">
+
+      <!-- Filter row -->
+      <div class="filter-row">
+        <div class="filter-tabs" id="filterTabs">
+          <button class="filter-tab active" data-filter="all">
+            All Items <span class="tab-count" id="countAll">0</span>
+          </button>
+          <button class="filter-tab" data-filter="available">Available</button>
+          <button class="filter-tab" data-filter="requested">Requested</button>
+          <button class="filter-tab" data-filter="on hold">On Hold</button>
+          <button class="filter-tab" data-filter="collected">Collected</button>
+        </div>
+        <a href="donor-post-item.html" class="btn-post-new">
+          <i class="bi bi-plus-lg"></i> Post New Item
+        </a>
+      </div>
+
+      <!-- Items grid (skeletons → real cards → empty) -->
+      <div class="items-grid" id="itemsGrid">
+        <!-- skeleton placeholders while loading -->
+        <div class="skel-card">
+          <div class="skeleton skel-img"></div>
+          <div class="skel-body">
+            <div class="skeleton skel-line" style="height:14px;width:70%;margin-bottom:8px;"></div>
+            <div class="skeleton skel-line" style="height:12px;width:40%;margin-bottom:16px;"></div>
+            <div class="skeleton skel-line" style="height:32px;width:100%;"></div>
+          </div>
+        </div>
+        <div class="skel-card">
+          <div class="skeleton skel-img"></div>
+          <div class="skel-body">
+            <div class="skeleton skel-line" style="height:14px;width:70%;margin-bottom:8px;"></div>
+            <div class="skeleton skel-line" style="height:12px;width:40%;margin-bottom:16px;"></div>
+            <div class="skeleton skel-line" style="height:32px;width:100%;"></div>
+          </div>
+        </div>
+        <div class="skel-card">
+          <div class="skeleton skel-img"></div>
+          <div class="skel-body">
+            <div class="skeleton skel-line" style="height:14px;width:70%;margin-bottom:8px;"></div>
+            <div class="skeleton skel-line" style="height:12px;width:40%;margin-bottom:16px;"></div>
+            <div class="skeleton skel-line" style="height:32px;width:100%;"></div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ══════════════════════════════════════ EDIT MODAL -->
+  <div class="modal-backdrop-custom" id="editModal">
+    <div class="edit-modal-box" role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
+      <div class="modal-header-gn">
+        <div>
+          <h2 id="editModalTitle">Edit Item</h2>
+          <p>Make changes to your item listing here. Click save when you're done.</p>
+        </div>
+        <button class="modal-close-btn" id="editCloseBtn" aria-label="Close">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <form id="editForm">
+        <div class="modal-body-gn">
+
+          <div class="modal-field">
+            <label class="modal-label" for="editItemName">Item Name</label>
+            <input type="text" id="editItemName" class="modal-input" />
+          </div>
+
+          <div class="modal-field">
+            <label class="modal-label" for="editCategory">Category</label>
+            <div class="modal-select-wrap">
+              <select id="editCategory" class="modal-select">
+                <option value="KitchenWare">KitchenWare</option>
+                <option value="Furniture">Furniture</option>
+                <option value="Books">Books</option>
+                <option value="Toys">Toys</option>
+                <option value="Electronics">Electronics</option>
+                <option value="Clothing">Clothing</option>
+                <option value="Shoes">Shoes</option>
+                <option value="Sports">Sports</option>
+                <option value="Tools">Tools</option>
+                <option value="Others">Others</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="modal-field">
+            <label class="modal-label" for="editCondition">Condition</label>
+            <div class="modal-select-wrap">
+              <select id="editCondition" class="modal-select">
+                <option value="Excellent">Excellent</option>
+                <option value="Good">Good</option>
+                <option value="Fair">Fair</option>
+                <option value="Poor">Poor</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="modal-field">
+            <label class="modal-label" for="editStatus">Status</label>
+            <div class="modal-select-wrap">
+              <select id="editStatus" class="modal-select" disabled>
+                <option value="pending">Pending</option>
+                <option value="available">Available</option>
+                <option value="requested">Requested</option>
+                <option value="on hold">On Hold</option>
+                <option value="collected">Collected</option>
+                <option value="expired">Expired</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </div>
+            <p class="status-note">Status is managed automatically and cannot be changed directly.</p>
+          </div>
+
+          <div class="modal-field">
+            <label class="modal-label" for="editLocation">Pickup Location</label>
+            <input type="text" id="editLocation" class="modal-input" />
+          </div>
+
+          <div class="modal-field">
+            <label class="modal-label" for="editDescription">Description</label>
+            <textarea id="editDescription" class="modal-textarea" rows="4"></textarea>
+          </div>
+
+        </div>
+
+        <div class="modal-footer-gn">
+          <button type="button" class="btn-modal-cancel" id="editCancelBtn">Cancel</button>
+          <button type="submit" class="btn-modal-save"   id="editSaveBtn">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ DELETE MODAL -->
+  <div class="modal-backdrop-custom" id="deleteModal">
+    <div class="delete-modal-box" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle">
+      <div class="delete-icon-wrap">
+        <i class="bi bi-trash3"></i>
+      </div>
+      <h2 id="deleteModalTitle">Delete Item?</h2>
+      <p>This will permanently remove this item. This action cannot be undone.</p>
+      <div class="delete-warning d-none" id="deleteWarning"></div>
+      <div class="delete-modal-actions">
+        <button type="button" class="btn-modal-cancel" id="deleteCancelBtn">Cancel</button>
+        <button type="button" class="btn-delete-confirm" id="confirmDeleteBtn">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script type="module">
+    import { auth, db }      from '../js/firebase-config.js';
+    import { showToast, escapeHtml } from '../js/utils.js';
+    import { onAuthStateChanged, signOut }
+      from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+    import {
+      doc, getDoc, getDocs, updateDoc, deleteDoc,
+      collection, query, where
+    } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+    // ── State ──────────────────────────────────────────────────
+    let currentUser    = null;
+    let allItems       = [];
+    let requestCountMap = {};   // itemId → request count
+    let activeFilter   = 'all';
+    let editingItemId  = null;
+    let deletingItemId = null;
+
+    // ── Sidebar ────────────────────────────────────────────────
+    const sidebar      = document.getElementById('sidebar');
+    const gnMain       = document.getElementById('gnMain');
+    const collapseBtn  = document.getElementById('sidebarCollapseBtn');
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const overlay      = document.getElementById('sidebarOverlay');
+
+    collapseBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('collapsed');
+      gnMain.classList.toggle('sidebar-collapsed');
+    });
+    hamburgerBtn.addEventListener('click', () => {
+      sidebar.classList.add('mobile-open');
+      overlay.classList.add('active');
+    });
+    overlay.addEventListener('click', () => {
+      sidebar.classList.remove('mobile-open');
+      overlay.classList.remove('active');
+    });
+
+    // ── Auth guard ─────────────────────────────────────────────
+    onAuthStateChanged(auth, async user => {
+      if (!user) { window.location.href = 'login.html'; return; }
+      currentUser = user;
+
+      const userSnap = await getDoc(doc(db, 'users', user.uid));
+      if (!userSnap.exists()) { window.location.href = 'login.html'; return; }
+      const userData = userSnap.data();
+
+      if (userData.role === 'admin') { window.location.href = 'admin-dashboard.html'; return; }
+
+      populateUserInfo(userData, user);
+      await loadItems(user.uid);
+    });
+
+    // ── User info ──────────────────────────────────────────────
+    function populateUserInfo(data, user) {
+      const fullName = data.fullName || data.firstName || 'User';
+      const parts    = fullName.trim().split(/\s+/);
+      const displayName = parts.length > 1 ? `${parts[0]} ${parts[parts.length-1][0]}.` : parts[0];
+      const avatarEl = document.getElementById('userAvatar');
+      if (data.photoURL) {
+        avatarEl.innerHTML = `<img src="${escapeHtml(data.photoURL)}" alt="${escapeHtml(fullName)}" />`;
+      } else {
+        avatarEl.textContent = fullName[0].toUpperCase();
+      }
+      document.getElementById('userName').textContent  = displayName;
+      document.getElementById('userEmail').textContent = user.email || '';
+    }
+
+    // ── Load data ──────────────────────────────────────────────
+    async function loadItems(uid) {
+      try {
+        // Fetch all items for this donor
+        const itemsSnap = await getDocs(
+          query(collection(db, 'items'), where('donorId', '==', uid))
+        );
+        allItems = itemsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+        // Sort by createdAt desc (client-side avoids composite index)
+        allItems.sort((a, b) => {
+          const ta = a.createdAt?.toDate?.() ?? new Date(0);
+          const tb = b.createdAt?.toDate?.() ?? new Date(0);
+          return tb - ta;
+        });
+
+        // Batch-fetch request counts for all this donor's items
+        const reqSnap = await getDocs(
+          query(collection(db, 'requests'), where('donorId', '==', uid))
+        );
+        requestCountMap = {};
+        reqSnap.forEach(d => {
+          const { itemId } = d.data();
+          if (itemId) requestCountMap[itemId] = (requestCountMap[itemId] || 0) + 1;
+        });
+
+        updateTabCounts();
+        renderItems(activeFilter);
+
+      } catch (err) {
+        console.error('Load items error:', err);
+        showToast('Failed to load items. Please refresh.', 'error');
+        document.getElementById('itemsGrid').innerHTML =
+          '<p class="no-results" style="grid-column:1/-1">Could not load items. Please refresh the page.</p>';
+      }
+    }
+
+    // ── Tab counts ─────────────────────────────────────────────
+    function updateTabCounts() {
+      document.getElementById('countAll').textContent = allItems.length;
+    }
+
+    // ── Filter tabs ────────────────────────────────────────────
+    document.getElementById('filterTabs').addEventListener('click', e => {
+      const tab = e.target.closest('.filter-tab');
+      if (!tab) return;
+      document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      activeFilter = tab.dataset.filter;
+      renderItems(activeFilter);
+    });
+
+    // ── Render grid ────────────────────────────────────────────
+    function renderItems(filter) {
+      const grid = document.getElementById('itemsGrid');
+
+      // Empty state — no items at all
+      if (allItems.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <i class="bi bi-box-seam empty-icon"></i>
+            <h3>You haven't listed any items yet.</h3>
+            <p>Start helping your community by donating items you no longer need.</p>
+            <a href="donor-post-item.html" class="btn-add-new">
+              <i class="bi bi-plus-lg"></i> Add New Item
+            </a>
+          </div>`;
+        return;
+      }
+
+      const filtered = filter === 'all'
+        ? allItems
+        : allItems.filter(i => (i.status || '').toLowerCase() === filter);
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div class="no-results">
+            <i class="bi bi-funnel"></i>
+            No items with status <strong>${escapeHtml(filter)}</strong>.
+          </div>`;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(item => buildCard(item)).join('');
+
+      // Attach card action listeners
+      grid.querySelectorAll('.btn-edit-card').forEach(btn => {
+        btn.addEventListener('click', () => openEditModal(btn.dataset.id));
+      });
+      grid.querySelectorAll('.btn-delete-card').forEach(btn => {
+        btn.addEventListener('click', () => openDeleteModal(btn.dataset.id));
+      });
+    }
+
+    // ── Build card HTML ────────────────────────────────────────
+    function buildCard(item) {
+      const status     = (item.status || 'pending').toLowerCase();
+      const statusLbl  = statusLabel(status);
+      const statusCls  = status.replace(/\s+/g, '-');
+      const condition  = item.condition || '';
+      const condCls    = conditionClass(condition);
+      const reqCount   = requestCountMap[item.id] || 0;
+      const imgSrc     = item.imageURL || (item.imageURLs && item.imageURLs[0]) || '../assets/images/Wooden Dining Chair.png';
+      const location   = item.location || '—';
+      const ago        = timeAgo(item.createdAt || item.postedDate);
+      const isPending  = status === 'pending';
+      const title      = item.title || item.itemName || 'Untitled';
+      const category   = item.category || '—';
+
+      return `
+        <div class="item-card" data-status="${escapeHtml(status)}" data-id="${escapeHtml(item.id)}">
+          <div class="card-img-wrap">
+            <img src="${escapeHtml(imgSrc)}"
+                 alt="${escapeHtml(title)}"
+                 class="card-img"
+                 onerror="this.src='../assets/images/Wooden Dining Chair.png'" />
+            <span class="status-badge status-${escapeHtml(statusCls)}">${escapeHtml(statusLbl)}</span>
+          </div>
+          <div class="card-body-gn">
+            <div class="card-title-row">
+              <span class="card-title">${escapeHtml(title)}</span>
+              ${condition ? `<span class="cond-badge cond-${escapeHtml(condCls)}">${escapeHtml(condition)}</span>` : ''}
+            </div>
+            <p class="card-category">${escapeHtml(category)}</p>
+            ${isPending ? '<p class="pending-notice"><i class="bi bi-clock"></i> Awaiting admin approval</p>' : ''}
+            <div class="card-meta">
+              <span><i class="bi bi-geo-alt"></i>${escapeHtml(location)}</span>
+              <span><i class="bi bi-chat-left"></i>${reqCount} request${reqCount !== 1 ? 's' : ''}</span>
+              <span><i class="bi bi-calendar3"></i>Posted ${escapeHtml(ago)}</span>
+            </div>
+            <div class="card-actions">
+              <button class="btn-edit-card" data-id="${escapeHtml(item.id)}">
+                <i class="bi bi-pencil"></i> Edit
+              </button>
+              <button class="btn-delete-card" data-id="${escapeHtml(item.id)}" aria-label="Delete ${escapeHtml(title)}">
+                <i class="bi bi-trash3"></i>
+              </button>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    // ── Helpers ────────────────────────────────────────────────
+    function statusLabel(status) {
+      const map = {
+        pending: 'Pending', available: 'Available', requested: 'Requested',
+        'on hold': 'On Hold', collected: 'Collected', expired: 'Expired', cancelled: 'Cancelled',
+      };
+      return map[status] || (status.charAt(0).toUpperCase() + status.slice(1));
+    }
+
+    function conditionClass(cond) {
+      const map = { Excellent: 'excellent', Good: 'good', Fair: 'fair', Poor: 'poor' };
+      return map[cond] || 'good';
+    }
+
+    function timeAgo(timestamp) {
+      if (!timestamp) return 'Unknown';
+      const d = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+      const diffMs   = Date.now() - d.getTime();
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHrs  = Math.floor(diffMins / 60);
+      const diffDays = Math.floor(diffHrs / 24);
+      if (diffMins < 60)  return diffMins <= 1 ? 'just now' : `${diffMins} mins ago`;
+      if (diffHrs < 24)   return diffHrs === 1 ? '1 hour ago' : `${diffHrs} hours ago`;
+      if (diffDays === 1) return 'yesterday';
+      if (diffDays < 30)  return `${diffDays} days ago`;
+      const diffMonths = Math.floor(diffDays / 30);
+      return diffMonths === 1 ? '1 month ago' : `${diffMonths} months ago`;
+    }
+
+    // ══════════════════════════════════════ EDIT MODAL
+    const editModal    = document.getElementById('editModal');
+    const editForm     = document.getElementById('editForm');
+    const editSaveBtn  = document.getElementById('editSaveBtn');
+
+    function openEditModal(itemId) {
+      const item = allItems.find(i => i.id === itemId);
+      if (!item) return;
+      editingItemId = itemId;
+
+      document.getElementById('editItemName').value   = item.title || item.itemName || '';
+      document.getElementById('editCategory').value   = item.category  || '';
+      document.getElementById('editCondition').value  = item.condition  || '';
+      document.getElementById('editStatus').value     = (item.status || 'pending').toLowerCase();
+      document.getElementById('editLocation').value   = item.location   || '';
+      document.getElementById('editDescription').value = item.description || '';
+
+      editModal.classList.add('show');
+    }
+
+    function closeEditModal() {
+      editModal.classList.remove('show');
+      editingItemId = null;
+      editForm.reset();
+    }
+
+    document.getElementById('editCloseBtn').addEventListener('click', closeEditModal);
+    document.getElementById('editCancelBtn').addEventListener('click', closeEditModal);
+    editModal.addEventListener('click', e => { if (e.target === editModal) closeEditModal(); });
+
+    editForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      if (!editingItemId) return;
+
+      editSaveBtn.disabled = true;
+      editSaveBtn.textContent = 'Saving…';
+
+      const updates = {
+        title:       document.getElementById('editItemName').value.trim(),
+        itemName:    document.getElementById('editItemName').value.trim(),
+        category:    document.getElementById('editCategory').value,
+        condition:   document.getElementById('editCondition').value,
+        location:    document.getElementById('editLocation').value.trim(),
+        description: document.getElementById('editDescription').value.trim(),
+      };
+
+      try {
+        await updateDoc(doc(db, 'items', editingItemId), updates);
+
+        // Update local cache
+        const idx = allItems.findIndex(i => i.id === editingItemId);
+        if (idx !== -1) allItems[idx] = { ...allItems[idx], ...updates };
+
+        closeEditModal();
+        renderItems(activeFilter);
+        showToast('Item updated successfully!', 'success');
+
+      } catch (err) {
+        console.error('Update error:', err);
+        showToast('Failed to save changes. Please try again.', 'error');
+      } finally {
+        editSaveBtn.disabled = false;
+        editSaveBtn.textContent = 'Save Changes';
+      }
+    });
+
+    // ══════════════════════════════════════ DELETE MODAL
+    const deleteModal      = document.getElementById('deleteModal');
+    const deleteWarning    = document.getElementById('deleteWarning');
+    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+
+    function openDeleteModal(itemId) {
+      const item = allItems.find(i => i.id === itemId);
+      if (!item) return;
+      deletingItemId = itemId;
+
+      const reqCount = requestCountMap[itemId] || 0;
+      if (reqCount > 0) {
+        deleteWarning.textContent =
+          `⚠ This item has ${reqCount} active request${reqCount > 1 ? 's' : ''}. Deleting it will cancel those requests.`;
+        deleteWarning.classList.remove('d-none');
+      } else {
+        deleteWarning.classList.add('d-none');
+      }
+
+      deleteModal.classList.add('show');
+    }
+
+    function closeDeleteModal() {
+      deleteModal.classList.remove('show');
+      deletingItemId = null;
+    }
+
+    document.getElementById('deleteCancelBtn').addEventListener('click', closeDeleteModal);
+    deleteModal.addEventListener('click', e => { if (e.target === deleteModal) closeDeleteModal(); });
+
+    confirmDeleteBtn.addEventListener('click', async () => {
+      if (!deletingItemId) return;
+
+      confirmDeleteBtn.disabled = true;
+      confirmDeleteBtn.textContent = 'Deleting…';
+
+      try {
+        await deleteDoc(doc(db, 'items', deletingItemId));
+
+        // Remove from local cache
+        allItems = allItems.filter(i => i.id !== deletingItemId);
+        delete requestCountMap[deletingItemId];
+
+        closeDeleteModal();
+        updateTabCounts();
+        renderItems(activeFilter);
+        showToast('Item deleted successfully!', 'success');
+
+      } catch (err) {
+        console.error('Delete error:', err);
+        showToast('Failed to delete item. Please try again.', 'error');
+      } finally {
+        confirmDeleteBtn.disabled = false;
+        confirmDeleteBtn.textContent = 'Delete';
+      }
+    });
+
+    // ══════════════════════════════════════ SWITCH / LOGOUT
+    document.getElementById('switchAccountBtn').addEventListener('click', async () => {
+      if (!currentUser) return;
+      try {
+        await updateDoc(doc(db, 'users', currentUser.uid), { role: 'recipient' });
+        window.location.href = 'recipient-dashboard.html';
+      } catch { showToast('Failed to switch account.', 'error'); }
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      try {
+        await signOut(auth);
+        window.location.href = 'login.html';
+      } catch { showToast('Logout failed.', 'error'); }
+    });
+  </script>
+</body>
+</html>

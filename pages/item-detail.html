@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Item Detail — GiveNet</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+
+  <style>
+    /* ── Navbar ─────────────────────────────────────────────── */
+    .gn-navbar { background-color: var(--color-white); border-bottom: 1px solid var(--gray-200); padding: 14px 0; }
+    .gn-navbar .navbar-brand img { height: 36px; width: auto; }
+    .gn-navbar .nav-link { font-size: var(--text-sm); font-weight: 600; color: var(--text-700); padding: 6px 14px; transition: color var(--transition-base); }
+    .gn-navbar .nav-link:hover, .gn-navbar .nav-link.active { color: var(--color-primary); }
+    .btn-nav-signin { font-size: var(--text-sm); font-weight: 600; color: var(--color-primary); background: transparent; border: 1.5px solid var(--color-primary); border-radius: var(--radius-md); padding: 8px 18px; text-decoration: none; transition: background-color var(--transition-base); }
+    .btn-nav-signin:hover { background-color: var(--primary-100); color: var(--color-primary); text-decoration: none; }
+    .btn-nav-started { font-size: var(--text-sm); font-weight: 600; color: var(--color-white); background-color: var(--color-primary); border: 1.5px solid var(--color-primary); border-radius: var(--radius-md); padding: 8px 18px; text-decoration: none; transition: background-color var(--transition-base); }
+    .btn-nav-started:hover { background-color: var(--primary-800); color: var(--color-white); text-decoration: none; }
+
+    /* ── Page shell ──────────────────────────────────────────── */
+    .page-wrap { background-color: #FEFAF3; min-height: 100vh; padding-bottom: 64px; }
+
+    /* ── Breadcrumb ──────────────────────────────────────────── */
+    .breadcrumb-gn { padding: 20px 0 12px; display: flex; align-items: center; gap: 8px; font-size: var(--text-sm); color: var(--neutral-400); }
+    .breadcrumb-gn a { color: var(--neutral-400); text-decoration: none; }
+    .breadcrumb-gn a:hover { color: var(--color-primary); }
+    .breadcrumb-gn span { color: var(--text-800); font-weight: 600; }
+
+    /* ── Hero image ──────────────────────────────────────────── */
+    .item-hero-img {
+      width: 100%; height: 420px; object-fit: contain;
+      background-color: #F5F0E8;
+      border-radius: var(--radius-xl); display: block; margin-bottom: 16px;
+    }
+    .item-thumbs { display: flex; gap: 12px; margin-bottom: 32px; }
+    .item-thumb {
+      width: 96px; height: 72px; object-fit: cover; border-radius: var(--radius-md);
+      cursor: pointer; border: 2px solid transparent; transition: border-color var(--transition-fast);
+    }
+    .item-thumb.active, .item-thumb:hover { border-color: var(--color-primary); }
+
+    /* ── Badges row ──────────────────────────────────────────── */
+    .item-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    .badge-status { display: inline-flex; align-items: center; gap: 4px; padding: 5px 12px; border-radius: var(--radius-full); font-size: var(--text-xs); font-weight: 700; }
+    .badge-available  { background-color: var(--success-100); color: var(--success-700); }
+    .badge-requested  { background-color: var(--primary-100); color: var(--primary-700); }
+    .badge-on-hold    { background-color: var(--warning-100); color: var(--warning-700); }
+    .badge-collected  { background-color: var(--gray-200);    color: var(--gray-600); }
+    .badge-cat { background-color: var(--primary-100); color: var(--primary-700); }
+
+    /* ── Item title & meta ───────────────────────────────────── */
+    .item-title { font-size: clamp(1.4rem, 3vw, 2rem); font-weight: 800; color: var(--text-900); margin-bottom: 8px; }
+    .item-posted-meta { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; font-size: var(--text-sm); color: var(--neutral-500); margin-bottom: 24px; }
+    .item-posted-meta span { display: flex; align-items: center; gap: 5px; }
+    .item-posted-meta i { font-size: 0.85rem; }
+
+    /* ── Section block ───────────────────────────────────────── */
+    .item-section { margin-bottom: 28px; }
+    .item-section-title { font-size: var(--text-base); font-weight: 700; color: var(--text-900); margin-bottom: 10px; }
+    .item-desc-text { font-size: var(--text-sm); color: var(--text-700); line-height: 1.8; }
+
+    /* Pickup pills */
+    .pickup-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+    .pickup-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 16px; border-radius: var(--radius-full);
+      border: 1.5px solid var(--gray-200); background-color: var(--color-white);
+      font-size: var(--text-sm); font-weight: 600; color: var(--text-700);
+    }
+    .pickup-pill i { font-size: 0.9rem; color: var(--color-primary); }
+
+    /* ── Donor card (sidebar) ─────────────────────────────────── */
+    .donor-card {
+      background-color: var(--color-white); border-radius: var(--radius-lg);
+      border: 1px solid var(--gray-200); padding: 20px; margin-bottom: 16px;
+    }
+    .donor-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .donor-avatar {
+      width: 48px; height: 48px; border-radius: var(--radius-full);
+      background-color: var(--primary-200); object-fit: cover; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; color: var(--color-primary); font-size: var(--text-base);
+    }
+    .donor-name { font-size: var(--text-base); font-weight: 700; color: var(--text-900); margin-bottom: 2px; }
+    .donor-meta { font-size: var(--text-xs); color: var(--neutral-500); }
+    .donor-stars { color: var(--warning-500); font-size: 0.8rem; }
+    .donor-stats { display: flex; gap: 16px; margin-bottom: 14px; }
+    .donor-stat { font-size: var(--text-xs); color: var(--neutral-500); }
+    .donor-stat strong { display: block; font-size: var(--text-sm); font-weight: 700; color: var(--text-800); }
+    .btn-contact { display: block; width: 100%; padding: 9px; border-radius: var(--radius-md); border: 1.5px solid var(--color-primary); background: transparent; color: var(--color-primary); font-size: var(--text-sm); font-weight: 600; font-family: inherit; text-align: center; text-decoration: none; cursor: pointer; transition: background-color var(--transition-base); }
+    .btn-contact:hover { background-color: var(--primary-100); text-decoration: none; color: var(--color-primary); }
+
+    /* ── Request button ──────────────────────────────────────── */
+    #requestBtn {
+      display: block; width: 100%; padding: 14px;
+      border: none; border-radius: var(--radius-full);
+      background-color: var(--color-primary); color: var(--color-white);
+      font-size: var(--text-base); font-weight: 700; font-family: inherit;
+      cursor: pointer; text-align: center; margin-bottom: 16px;
+      transition: background-color var(--transition-base);
+    }
+    #requestBtn:hover:not(:disabled) { background-color: var(--primary-800); }
+    #requestBtn:disabled {
+      background-color: var(--neutral-300); color: var(--neutral-500);
+      cursor: not-allowed;
+    }
+    #requestBtn.already-requested {
+      background-color: var(--gray-200); color: var(--neutral-500);
+      cursor: not-allowed;
+    }
+
+    /* Safety notice */
+    .safety-notice {
+      background-color: var(--primary-50); border: 1px solid var(--primary-100);
+      border-radius: var(--radius-md); padding: 12px 16px;
+      font-size: var(--text-xs); color: var(--text-700); line-height: 1.6;
+      display: flex; gap: 10px; margin-bottom: 16px;
+    }
+    .safety-notice i { color: var(--color-primary); font-size: 1rem; flex-shrink: 0; margin-top: 2px; }
+
+    /* Info icons row */
+    .info-row { display: flex; gap: 8px; }
+    .info-item {
+      flex: 1; background-color: var(--color-white); border-radius: var(--radius-md);
+      border: 1px solid var(--gray-200); padding: 12px 8px;
+      text-align: center; font-size: var(--text-xs); color: var(--neutral-500);
+    }
+    .info-item i { font-size: 1.1rem; color: var(--color-primary); display: block; margin-bottom: 4px; }
+    .info-item span { font-weight: 600; color: var(--text-700); display: block; margin-bottom: 2px; font-size: var(--text-xs); }
+
+    /* ── Skeleton ────────────────────────────────────────────── */
+    .skel-hero { height: 420px; border-radius: var(--radius-xl); margin-bottom: 16px; }
+    .skel-line { height: 14px; border-radius: var(--radius-sm); margin-bottom: 12px; }
+    .skel-title { height: 28px; border-radius: var(--radius-sm); margin-bottom: 12px; }
+
+    /* ── Error state ─────────────────────────────────────────── */
+    .error-state { text-align: center; padding: 80px 24px; }
+    .error-state i { font-size: 3rem; color: var(--neutral-300); display: block; margin-bottom: 16px; }
+    .error-state h2 { font-size: var(--text-xl); font-weight: 700; color: var(--text-700); margin-bottom: 8px; }
+    .error-state p  { color: var(--neutral-500); margin-bottom: 24px; }
+
+    /* ── Similar items section ───────────────────────────────── */
+    .similar-section { background-color: #FDF0D5; padding: 56px 0; }
+    .similar-section h2 { font-size: var(--text-xl); font-weight: 800; color: var(--text-900); margin-bottom: 28px; }
+    .similar-card { background-color: var(--color-white); border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--gray-100); box-shadow: var(--shadow-sm); transition: box-shadow var(--transition-base), transform var(--transition-base); }
+    .similar-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+    .similar-card-img { width: 100%; height: 160px; object-fit: cover; display: block; }
+    .similar-card-body { padding: 12px 14px 14px; }
+    .similar-card-title { font-size: var(--text-sm); font-weight: 700; color: var(--text-900); margin-bottom: 4px; }
+    .similar-card-cat { font-size: var(--text-xs); color: var(--neutral-400); margin-bottom: 10px; }
+    .btn-similar { display: block; width: 100%; padding: 9px; border: none; border-radius: var(--radius-md); background-color: var(--color-primary); color: var(--color-white); font-size: var(--text-xs); font-weight: 700; font-family: inherit; text-align: center; text-decoration: none; cursor: pointer; transition: background-color var(--transition-base); }
+    .btn-similar:hover { background-color: var(--primary-800); color: var(--color-white); text-decoration: none; }
+
+    /* ── Request Modal ───────────────────────────────────────── */
+    .modal-backdrop-gn { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 1040; display: flex; align-items: center; justify-content: center; padding: 16px; animation: fade-in 0.2s ease; }
+    .modal-box-gn { background: var(--color-white); border-radius: var(--radius-xl); width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-xl); animation: scale-in 0.2s ease; }
+    .modal-header-gn { padding: 20px 24px 16px; border-bottom: 1px solid var(--gray-100); display: flex; align-items: center; justify-content: space-between; }
+    .modal-header-gn h3 { font-size: var(--text-lg); font-weight: 800; color: var(--text-900); margin: 0; }
+    .modal-close { background: none; border: none; font-size: 1.2rem; color: var(--neutral-400); cursor: pointer; padding: 0; line-height: 1; }
+    .modal-close:hover { color: var(--text-900); }
+    .modal-body-gn { padding: 20px 24px; }
+    .modal-footer-gn { padding: 16px 24px 20px; border-top: 1px solid var(--gray-100); display: flex; gap: 12px; }
+    .modal-item-preview { display: flex; gap: 12px; align-items: center; background-color: var(--primary-50); border-radius: var(--radius-md); padding: 10px; margin-bottom: 20px; }
+    .modal-item-preview img { width: 52px; height: 52px; object-fit: cover; border-radius: var(--radius-sm); flex-shrink: 0; }
+    .modal-item-name { font-size: var(--text-sm); font-weight: 700; color: var(--text-900); margin-bottom: 2px; }
+    .modal-item-cat { font-size: var(--text-xs); color: var(--neutral-500); }
+    .modal-label { font-size: var(--text-sm); font-weight: 600; color: var(--text-800); margin-bottom: 6px; display: block; }
+    .modal-label .optional { font-weight: 400; color: var(--neutral-400); font-size: var(--text-xs); }
+    .modal-textarea { width: 100%; padding: 12px 14px; border: 1.5px solid var(--neutral-300); border-radius: var(--radius-md); font-family: inherit; font-size: var(--text-sm); color: var(--color-text); resize: vertical; min-height: 80px; outline: none; transition: border-color var(--transition-fast); }
+    .modal-textarea:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(122,69,32,0.10); }
+    .modal-input { width: 100%; padding: 11px 14px; border: 1.5px solid var(--neutral-300); border-radius: var(--radius-md); font-family: inherit; font-size: var(--text-sm); color: var(--color-text); outline: none; transition: border-color var(--transition-fast); background-color: var(--color-white); }
+    .modal-input:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(122,69,32,0.10); }
+    .modal-notice { background-color: var(--warning-50); border: 1px solid var(--warning-100); border-radius: var(--radius-md); padding: 12px 14px; font-size: var(--text-xs); color: var(--text-700); line-height: 1.6; display: flex; gap: 8px; margin-top: 16px; }
+    .modal-notice i { color: var(--warning-600); flex-shrink: 0; font-size: 0.9rem; margin-top: 1px; }
+    .btn-cancel { flex: 1; padding: 12px; border: 1.5px solid var(--gray-200); border-radius: var(--radius-full); background: transparent; color: var(--text-700); font-size: var(--text-base); font-weight: 600; font-family: inherit; cursor: pointer; transition: background-color var(--transition-fast); }
+    .btn-cancel:hover { background-color: var(--gray-100); }
+    .btn-send { flex: 2; padding: 12px; border: none; border-radius: var(--radius-full); background-color: var(--color-primary); color: var(--color-white); font-size: var(--text-base); font-weight: 700; font-family: inherit; cursor: pointer; transition: background-color var(--transition-base); }
+    .btn-send:hover:not(:disabled) { background-color: var(--primary-800); }
+    .btn-send:disabled { background-color: var(--neutral-300); cursor: not-allowed; }
+
+    @keyframes fade-in  { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes scale-in { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+    /* ── Back link ───────────────────────────────────────────── */
+    .back-link { display: inline-flex; align-items: center; gap: 6px; font-size: var(--text-sm); font-weight: 600; color: var(--text-700); text-decoration: none; padding: 20px 0 16px; transition: color var(--transition-base); }
+    .back-link:hover { color: var(--color-primary); text-decoration: none; }
+
+    /* ── Meta lines (location / posted / condition) ──────────── */
+    .item-meta-lines { margin-bottom: 20px; }
+    .item-meta-line { display: flex; align-items: center; gap: 8px; font-size: var(--text-sm); color: var(--neutral-500); margin-bottom: 6px; }
+    .item-meta-line i { font-size: 0.85rem; color: var(--color-primary); flex-shrink: 0; }
+
+    /* ── Description bordered box ────────────────────────────── */
+    .desc-box { border: 1px solid #EDE0D4; border-radius: 12px; padding: 1.25rem; background-color: var(--color-white); }
+
+    /* ── Fairness notice ─────────────────────────────────────── */
+    .fairness-notice { display: flex; align-items: flex-start; gap: 8px; font-size: var(--text-xs); color: var(--text-700); line-height: 1.5; margin-bottom: 16px; }
+    .fairness-notice i { color: var(--color-primary); flex-shrink: 0; font-size: 0.9rem; margin-top: 1px; }
+
+    /* ── Top donor badge ─────────────────────────────────────── */
+    .donor-top-badge { font-size: var(--text-xs); font-weight: 700; color: var(--warning-700); background-color: var(--warning-100); padding: 3px 10px; border-radius: var(--radius-full); }
+    .donor-member { font-size: var(--text-xs); color: var(--neutral-500); margin-bottom: 3px; }
+    .donor-rating-inline { font-size: var(--text-xs); color: var(--neutral-500); display: flex; align-items: center; gap: 4px; }
+    .donor-rating-inline .bi-star-fill { color: var(--warning-500); font-size: 0.75rem; }
+
+    /* ── Trust badge descriptions ────────────────────────────── */
+    .info-item .info-desc { font-size: 10px; color: var(--neutral-400); display: block; margin-top: 3px; line-height: 1.4; text-align: center; }
+
+    /* ── Similar card new layout ─────────────────────────────── */
+    .sim-title-row { display: flex; align-items: flex-start; gap: 6px; margin-bottom: 4px; }
+    .sim-badge-cond { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: var(--radius-full); flex-shrink: 0; margin-top: 1px; }
+    .sim-meta { font-size: var(--text-xs); color: var(--neutral-400); display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+    .sim-meta i { font-size: 0.75rem; }
+    .sim-donor { font-size: var(--text-xs); color: var(--neutral-500); margin-bottom: 10px; display: flex; align-items: center; gap: 4px; }
+    .sim-donor i { font-size: 0.8rem; }
+
+    /* ── Footer ──────────────────────────────────────────────── */
+    .gn-footer { background-color: #3D1F0E; padding: 56px 0 28px; color: rgba(255,255,255,0.75); }
+    .footer-brand img { height: 40px; width: auto; margin-bottom: 10px; filter: brightness(0) invert(1); opacity: 0.9; }
+    .footer-tagline { font-size: var(--text-sm); color: rgba(255,255,255,0.55); max-width: 220px; line-height: 1.6; }
+    .footer-col-title { font-size: var(--text-sm); font-weight: 700; color: var(--color-white); margin-bottom: 16px; }
+    .footer-links { list-style: none; padding: 0; margin: 0; }
+    .footer-links li { margin-bottom: 10px; }
+    .footer-links a { font-size: var(--text-sm); color: rgba(255,255,255,0.6); text-decoration: none; transition: color var(--transition-base); }
+    .footer-links a:hover { color: var(--color-white); text-decoration: none; }
+    .footer-divider { border-color: rgba(255,255,255,0.1); margin: 36px 0 24px; }
+    .footer-copy { font-size: var(--text-xs); color: rgba(255,255,255,0.4); }
+  </style>
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════════ NAVBAR -->
+  <nav class="navbar navbar-expand-lg gn-navbar sticky-top">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="../index.html">
+        <img src="../assets/images/logo-small.png" alt="GiveNet" />
+      </a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse"
+        data-bs-target="#navMenu" aria-controls="navMenu" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navMenu">
+        <ul class="navbar-nav mx-auto gap-1">
+          <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link active" href="browse-items.html">Browse Items</a></li>
+          <li class="nav-item"><a class="nav-link" href="../index.html#how-it-works">How It Works</a></li>
+          <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact-us.html">Contact Us</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
+          <a href="login.html" class="btn-nav-signin">Log In</a>
+          <a href="signup.html" class="btn-nav-started">Sign Up</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ══════════════════════════════════════════ PAGE -->
+  <div class="page-wrap">
+    <div class="container">
+      <!-- Back link -->
+      <a href="browse-items.html" class="back-link">
+        <i class="bi bi-arrow-left"></i> Back to Browse Items
+      </a>
+
+      <!-- ── Skeleton (shown while loading) ─────────────────── -->
+      <div id="skeletonView">
+        <div class="skeleton skel-hero"></div>
+        <div class="d-flex gap-2 mb-4">
+          <div class="skeleton" style="width:96px;height:72px;border-radius:8px;"></div>
+          <div class="skeleton" style="width:96px;height:72px;border-radius:8px;"></div>
+          <div class="skeleton" style="width:96px;height:72px;border-radius:8px;"></div>
+        </div>
+        <div class="row g-5">
+          <div class="col-lg-8">
+            <div class="skeleton skel-line" style="width:30%;"></div>
+            <div class="skeleton skel-title" style="width:60%;"></div>
+            <div class="skeleton skel-line" style="width:40%;"></div>
+            <div class="skeleton skel-line mt-4" style="width:100%;"></div>
+            <div class="skeleton skel-line" style="width:90%;"></div>
+            <div class="skeleton skel-line" style="width:80%;"></div>
+          </div>
+          <div class="col-lg-4">
+            <div class="skeleton" style="height:160px;border-radius:12px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Error state ─────────────────────────────────────── -->
+      <div id="errorView" class="error-state d-none">
+        <i class="bi bi-exclamation-circle"></i>
+        <h2>Item Not Found</h2>
+        <p>This item may have been removed or the link is incorrect.</p>
+        <a href="browse-items.html" class="btn-gn-primary" style="display:inline-flex;">
+          <i class="bi bi-arrow-left me-2"></i> Back to Browse
+        </a>
+      </div>
+
+      <!-- ── Item content (hidden until loaded) ─────────────── -->
+      <div id="itemView" class="d-none">
+
+        <!-- Hero image -->
+        <img id="heroImg" src="" alt="" class="item-hero-img" />
+
+        <!-- Thumbnails (3, repeated from same image if only one available) -->
+        <div class="item-thumbs" id="thumbsRow">
+          <img class="item-thumb active" id="thumb0" src="" alt="" data-idx="0" />
+          <img class="item-thumb"        id="thumb1" src="" alt="" data-idx="1" />
+          <img class="item-thumb"        id="thumb2" src="" alt="" data-idx="2" />
+        </div>
+
+        <!-- Two-column layout -->
+        <div class="row g-5">
+
+          <!-- ── Left: main info ─────────────────────────────── -->
+          <div class="col-lg-8">
+
+            <!-- Badges (status + category only) -->
+            <div class="item-badges">
+              <span class="badge-status badge-available" id="statusBadge">Available</span>
+              <span class="badge-status badge-cat" id="categoryBadge">Category</span>
+            </div>
+
+            <!-- Title -->
+            <h1 class="item-title" id="itemTitle">Item Title</h1>
+
+            <!-- Meta lines: location / posted / condition -->
+            <div class="item-meta-lines">
+              <div class="item-meta-line">
+                <i class="bi bi-geo-alt-fill"></i>
+                <span id="itemLocation">—</span>
+              </div>
+              <div class="item-meta-line">
+                <i class="bi bi-clock"></i>
+                <span>Posted on <span id="itemPosted">—</span></span>
+              </div>
+              <div class="item-meta-line">
+                <i class="bi bi-tag-fill"></i>
+                <span>Condition: <span id="itemConditionText">—</span></span>
+              </div>
+            </div>
+
+            <!-- Description -->
+            <div class="item-section">
+              <p class="item-section-title">Item Description</p>
+              <div class="desc-box">
+                <p class="item-desc-text" id="itemDescription">—</p>
+              </div>
+            </div>
+
+            <!-- How to get it -->
+            <div class="item-section">
+              <p class="item-section-title">How to Get It</p>
+              <div class="pickup-pills" id="pickupPills">
+                <span class="pickup-pill"><i class="bi bi-box-seam"></i> Free Pickup</span>
+              </div>
+            </div>
+
+          </div><!-- /col-lg-8 -->
+
+          <!-- ── Right: donor + action ───────────────────────── -->
+          <div class="col-lg-4">
+
+            <!-- Donor card -->
+            <div class="donor-card" id="donorCard">
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <p class="item-section-title" style="margin:0;">About the Donor</p>
+                <span class="donor-top-badge d-none" id="topDonorBadge">Top Donor</span>
+              </div>
+              <div class="donor-card-header">
+                <div class="donor-avatar" id="donorAvatar">?</div>
+                <div>
+                  <p class="donor-name" id="donorName">—</p>
+                  <p class="donor-member" id="donorMemberSince">—</p>
+                  <div class="donor-rating-inline" id="donorRatingLine">
+                    <i class="bi bi-star-fill"></i>
+                    <span id="donorRatingVal">—</span>
+                    <span style="color:var(--neutral-400);">rating</span>
+                  </div>
+                </div>
+              </div>
+              <div class="donor-stats">
+                <div class="donor-stat">
+                  <strong id="donorItemCount">—</strong>items donated
+                </div>
+                <div class="donor-stat">
+                  <strong id="donorItemsReceived">—</strong>items received
+                </div>
+              </div>
+              <a href="#" class="btn-contact">Contact Donor</a>
+            </div>
+
+            <!-- Request button -->
+            <button id="requestBtn" type="button">
+              <i class="bi bi-send me-2"></i>Send Request
+            </button>
+
+            <!-- Fairness notice (shown only when logged in) -->
+            <div class="fairness-notice d-none" id="fairnessNotice">
+              <i class="bi bi-info-circle"></i>
+              <span id="fairnessText">You have 0 of 3 active requests. To keep GiveNet fair for everyone, request only items you truly need.</span>
+            </div>
+
+            <!-- Info icons row -->
+            <div class="info-row">
+              <div class="info-item">
+                <i class="bi bi-gift"></i>
+                <span>Free Pickup</span>
+                <span class="info-desc">All items are free. Just arrange a convenient pickup time with the donor.</span>
+              </div>
+              <div class="info-item">
+                <i class="bi bi-geo-alt"></i>
+                <span>Local Pickup</span>
+                <span class="info-desc">Meet in a safe, convenient location in the Downtown, City Center area.</span>
+              </div>
+              <div class="info-item">
+                <i class="bi bi-patch-check"></i>
+                <span>Verified Donor</span>
+                <span class="info-desc">This donor is a trusted community member with a great track record.</span>
+              </div>
+            </div>
+
+          </div><!-- /col-lg-4 -->
+
+        </div><!-- /row -->
+      </div><!-- /itemView -->
+    </div><!-- /container -->
+  </div><!-- /page-wrap -->
+
+  <!-- ══════════════════════════════════════════ SIMILAR ITEMS -->
+  <section class="similar-section" id="similarSection" style="display:none;">
+    <div class="container">
+      <h2>Similar Items Nearby You Might Like</h2>
+      <div class="row g-4" id="similarGrid"></div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════ FOOTER -->
+  <footer class="gn-footer">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-lg-4 col-md-6">
+          <div class="footer-brand"><img src="../assets/images/logo-small.png" alt="GiveNet" /></div>
+          <p class="footer-tagline">Connecting communities through the power of giving. Share what you have, find what you need.</p>
+        </div>
+        <div class="col-lg-2 col-md-6 col-6">
+          <p class="footer-col-title">Quick Links</p>
+          <ul class="footer-links">
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="browse-items.html">Browse Items</a></li>
+            <li><a href="../index.html#how-it-works">How It Works</a></li>
+            <li><a href="about.html">About Us</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-6 col-6">
+          <p class="footer-col-title">Support</p>
+          <ul class="footer-links">
+            <li><a href="help-center.html">Help Center</a></li>
+            <li><a href="safety-guidelines.html">Safety Guidelines</a></li>
+            <li><a href="contact-us.html">Contact Us</a></li>
+            <li><a href="faqs.html">FAQs</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-2 col-md-6 col-6">
+          <p class="footer-col-title">Legal</p>
+          <ul class="footer-links">
+            <li><a href="privacy-policy.html">Privacy Policies</a></li>
+            <li><a href="terms-of-service.html">Terms Of Service</a></li>
+            <li><a href="community-rules.html">Community Rules</a></li>
+          </ul>
+        </div>
+      </div>
+      <hr class="footer-divider" />
+      <p class="footer-copy text-center mb-0">&copy; 2026 GiveNet. Building stronger communities through sharing.</p>
+    </div>
+  </footer>
+
+  <!-- ══════════════════════════════════════════ REQUEST MODAL -->
+  <div id="requestModal" style="display:none;">
+    <div class="modal-backdrop-gn" id="modalBackdrop">
+      <div class="modal-box-gn" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+
+        <div class="modal-header-gn">
+          <h3 id="modalTitle">Request Item</h3>
+          <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
+        </div>
+
+        <div class="modal-body-gn">
+          <!-- Item preview -->
+          <div class="modal-item-preview">
+            <img id="modalItemImg" src="" alt="" />
+            <div>
+              <p class="modal-item-name" id="modalItemName">Item Name</p>
+              <p class="modal-item-cat" id="modalItemCat">Category</p>
+            </div>
+          </div>
+
+          <!-- Message -->
+          <div class="mb-3">
+            <label class="modal-label" for="msgInput">
+              Your Message <span class="optional">(Optional)</span>
+            </label>
+            <textarea id="msgInput" class="modal-textarea"
+              placeholder="Hi! I'm interested in this item. I can pick up any weekday after 5pm…"></textarea>
+          </div>
+
+          <!-- Date + Time (side by side) -->
+          <div class="row g-3 mb-2">
+            <div class="col-6">
+              <label class="modal-label" for="pickupDate">Preferred Pickup Date</label>
+              <input type="date" id="pickupDate" class="modal-input" />
+            </div>
+            <div class="col-6">
+              <label class="modal-label" for="pickupTime">Preferred Pickup Time</label>
+              <input type="time" id="pickupTime" class="modal-input" />
+            </div>
+          </div>
+
+          <!-- Important notice -->
+          <div class="modal-notice">
+            <i class="bi bi-exclamation-triangle"></i>
+            <span>Always meet in safe, public locations. Do not share personal financial details. GiveNet never asks for payment for donated items.</span>
+          </div>
+        </div>
+
+        <div class="modal-footer-gn">
+          <button class="btn-cancel" id="cancelBtn">Cancel</button>
+          <button class="btn-send" id="sendRequestBtn">
+            <span id="sendBtnText">Send Request</span>
+            <span id="sendBtnSpinner" class="d-none">
+              <span class="spinner-border spinner-border-sm" role="status"></span>
+            </span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script type="module">
+    import { auth, db } from '../js/firebase-config.js';
+    import { formatDate, showToast } from '../js/utils.js';
+    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+    import {
+      doc, getDoc, getDocs, collection, query,
+      where, addDoc, updateDoc, serverTimestamp
+    } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+    // ── Static fallback items (for similar section) ────────────
+    const STATIC_SIMILAR = [
+      { id: 's3',  title: 'Sturdy Baby Crib',   category: 'Furniture', condition: 'Excellent', imageURL: '../assets/images/Baby Crib.png',                                                                         location: 'Ikeja, Lagos',   timeAgo: '2 hours ago',  donorName: 'Chidi K.' },
+      { id: 's7',  title: 'Dining Set',          category: 'Furniture', condition: 'Good',      imageURL: '../assets/images/Savvy homeowner makes dining table out of scaffolding planks 1.png',                    location: 'Surulere, L...', timeAgo: '8 days ago',   donorName: 'John N.' },
+      { id: 's10', title: 'Pink Sofa',           category: 'Furniture', condition: 'Excellent', imageURL: '../assets/images/download (11) 1.png',                                                                   location: 'Ikoyi, Lagos',   timeAgo: '4 days ago',   donorName: 'Jane S.' },
+      { id: 's11', title: 'Resting Chair',       category: 'Furniture', condition: 'Good',      imageURL: '../assets/images/Humbert & Poyet lancieren ihre erste Möbelkollektion 1.png',                            location: 'Abuja, FCT',     timeAgo: '1 week ago',   donorName: 'Benjamin A.' },
+    ];
+
+    // ── State ──────────────────────────────────────────────────
+    const params    = new URLSearchParams(window.location.search);
+    const itemId    = params.get('id');
+    let   itemData  = null;
+    let   currentUser = null;
+    let   alreadyRequested = false;
+
+    // ── DOM refs ───────────────────────────────────────────────
+    const skeletonView  = document.getElementById('skeletonView');
+    const errorView     = document.getElementById('errorView');
+    const itemView      = document.getElementById('itemView');
+    const requestBtn    = document.getElementById('requestBtn');
+    const requestModal  = document.getElementById('requestModal');
+
+    // ── Helper: show correct view ──────────────────────────────
+    function showView(view) {
+      skeletonView.classList.add('d-none');
+      errorView.classList.add('d-none');
+      itemView.classList.add('d-none');
+      document.getElementById(view).classList.remove('d-none');
+    }
+
+    // ── Status badge styling ───────────────────────────────────
+    function applyStatusBadge(el, status) {
+      el.className = 'badge-status';
+      const map = {
+        available:  ['badge-available',  'Available'],
+        requested:  ['badge-requested',  'Requested'],
+        'on hold':  ['badge-on-hold',    'On Hold'],
+        collected:  ['badge-collected',  'Collected'],
+        pending:    ['badge-pending',    'Pending'],
+      };
+      const [cls, label] = map[(status||'').toLowerCase()] || ['badge-available','Available'];
+      el.classList.add(cls);
+      el.textContent = label;
+    }
+
+    // ── Condition badge ────────────────────────────────────────
+    function applyCondBadge(el, cond) {
+      const map = {
+        excellent: ['var(--success-100)', 'var(--success-700)'],
+        good:      ['var(--warning-100)', 'var(--warning-700)'],
+        fair:      ['var(--primary-100)', 'var(--primary-700)'],
+        poor:      ['var(--error-100)',   'var(--error-700)'],
+      };
+      const [bg, color] = map[(cond||'good').toLowerCase()] || map.good;
+      el.style.backgroundColor = bg;
+      el.style.color = color;
+      el.textContent = cond || 'Good';
+    }
+
+    // ── Render star rating ─────────────────────────────────────
+    function renderStars(el, rating = 0) {
+      const full = Math.round(rating);
+      el.innerHTML = Array.from({ length: 5 }, (_, i) =>
+        `<i class="bi bi-star${i < full ? '-fill' : ''}"></i>`
+      ).join('');
+    }
+
+    // ── Build pickup pills from deliveryMethod field ───────────
+    function buildPickupPills(el, method) {
+      let methods;
+      if (Array.isArray(method)) {
+        methods = method;
+      } else if (typeof method === 'string' && method.includes(',')) {
+        methods = method.split(',').map(s => s.trim()).filter(Boolean);
+      } else {
+        methods = [method || 'Free Pickup'];
+      }
+      const iconMap = {
+        'Free Pickup':        'bi-gift',
+        'Arrange Pickup':     'bi-calendar-check',
+        'Doorstep Delivery':  'bi-truck',
+        'Doorstep Pickup':    'bi-truck',
+        'Local Pickup':       'bi-geo-alt',
+        'Public Meetup':      'bi-people',
+        'Donor Delivery':     'bi-box-arrow-right',
+        'Third-party Logistic': 'bi-building',
+        'Personal Handover':  'bi-person-check',
+      };
+      el.innerHTML = methods.map(m =>
+        `<span class="pickup-pill"><i class="bi ${iconMap[m] || 'bi-box-seam'}"></i> ${m}</span>`
+      ).join('');
+    }
+
+    // ── Condition color map ────────────────────────────────────
+    function condStyle(cond) {
+      const map = {
+        excellent: { bg: 'var(--success-100)', color: 'var(--success-700)' },
+        good:      { bg: 'var(--warning-100)', color: 'var(--warning-700)' },
+        fair:      { bg: 'var(--primary-100)', color: 'var(--primary-700)' },
+        poor:      { bg: 'var(--error-100)',   color: 'var(--error-700)'   },
+      };
+      return map[(cond || 'good').toLowerCase()] || map.good;
+    }
+
+    // ── Render similar items ───────────────────────────────────
+    function renderSimilar(items) {
+      const grid = document.getElementById('similarGrid');
+      grid.innerHTML = items.slice(0, 4).map(item => {
+        const cs = condStyle(item.condition);
+        return `
+        <div class="col-sm-6 col-lg-3">
+          <div class="similar-card">
+            <img class="similar-card-img" src="${item.imageURL || ''}" alt="${item.title}" loading="lazy" />
+            <div class="similar-card-body">
+              <div class="sim-title-row">
+                <p class="similar-card-title" style="margin:0;flex:1;">${item.title}</p>
+                <span class="sim-badge-cond" style="background:${cs.bg};color:${cs.color};">${item.condition || 'Good'}</span>
+              </div>
+              <p class="similar-card-cat">${item.category}</p>
+              <div class="sim-meta">
+                <span><i class="bi bi-geo-alt"></i> ${item.location || '—'}</span>
+                <span><i class="bi bi-clock"></i> ${item.timeAgo || '—'}</span>
+              </div>
+              <p class="sim-donor"><i class="bi bi-person-circle"></i> Shared by ${item.donorName || 'Community Member'}.</p>
+              <a href="item-detail.html?id=${item.id}" class="btn-similar">View Details</a>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+      document.getElementById('similarSection').style.display = '';
+    }
+
+    // ── Populate page with item data ───────────────────────────
+    function populatePage(item, donor) {
+      document.title = `${item.itemName || item.title} — GiveNet`;
+
+      // Hero image
+      const imgSrc = item.imageURL || '../assets/images/Wooden Dining Chair.png';
+      const heroImg = document.getElementById('heroImg');
+      heroImg.src = imgSrc;
+      heroImg.alt = item.itemName || item.title || 'Item';
+
+      // Badges (status + category only)
+      applyStatusBadge(document.getElementById('statusBadge'), item.status);
+      document.getElementById('categoryBadge').textContent = item.category || 'Other';
+
+      // Title & meta lines
+      document.getElementById('itemTitle').textContent       = item.itemName || item.title || 'Unnamed Item';
+      document.getElementById('itemLocation').textContent    = item.pickupLocation || item.location || 'Exact location shared after request is accepted.';
+      document.getElementById('itemPosted').textContent      = item.createdAt ? formatDate(item.createdAt) : 'Recently';
+      document.getElementById('itemConditionText').textContent = item.condition || 'Good';
+
+      // Description
+      document.getElementById('itemDescription').textContent =
+        item.description || 'No description provided.';
+
+      // Pickup method
+      buildPickupPills(document.getElementById('pickupPills'), item.deliveryMethod || item.pickupMethod);
+
+      // Donor info
+      if (donor) {
+        // Avatar
+        const fullName = donor.fullName || donor.firstName || 'Anonymous';
+        const initials = fullName[0].toUpperCase();
+        const avatarEl = document.getElementById('donorAvatar');
+        if (donor.photoURL) {
+          avatarEl.innerHTML = `<img src="${donor.photoURL}" alt="${fullName}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`;
+        } else {
+          avatarEl.textContent = initials;
+        }
+
+        // Name: first name + last initial (e.g. "Amina O.")
+        const nameParts = fullName.trim().split(/\s+/);
+        const displayName = nameParts.length > 1
+          ? `${nameParts[0]} ${nameParts[nameParts.length - 1][0]}.`
+          : nameParts[0];
+        document.getElementById('donorName').textContent = displayName;
+
+        // Member since
+        if (donor.createdAt) {
+          const d = donor.createdAt.toDate ? donor.createdAt.toDate() : new Date(donor.createdAt);
+          const memberSince = d.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+          document.getElementById('donorMemberSince').textContent = `Member since ${memberSince}`;
+        } else {
+          document.getElementById('donorMemberSince').textContent = '';
+        }
+
+        // Rating
+        const rating = donor.rating || 0;
+        document.getElementById('donorRatingVal').textContent = rating > 0 ? rating.toFixed(1) : '—';
+
+        // Stats
+        const itemCount = donor.itemCount || donor.donatedCount || 0;
+        const receivedCount = donor.receivedCount || 0;
+        document.getElementById('donorItemCount').textContent     = itemCount + ' ';
+        document.getElementById('donorItemsReceived').textContent = receivedCount + ' ';
+
+        // Top Donor badge (10+ donations)
+        if (itemCount >= 10) {
+          document.getElementById('topDonorBadge').classList.remove('d-none');
+        }
+      } else {
+        // No donor found — show anonymous
+        document.getElementById('donorName').textContent        = 'Anonymous';
+        document.getElementById('donorMemberSince').textContent = '';
+        document.getElementById('donorRatingVal').textContent   = '—';
+        document.getElementById('donorItemCount').textContent   = '— ';
+        document.getElementById('donorItemsReceived').textContent = '— ';
+      }
+
+      // Thumbnails — fill all 3 with same image (repeat if only 1)
+      ['thumb0','thumb1','thumb2'].forEach(id => {
+        const t = document.getElementById(id);
+        t.src = imgSrc;
+        t.alt = item.itemName || item.title || '';
+      });
+
+      // Pre-fill modal
+      document.getElementById('modalItemImg').src  = imgSrc;
+      document.getElementById('modalItemName').textContent = item.itemName || item.title || '';
+      document.getElementById('modalItemCat').textContent  = item.category || '';
+
+      showView('itemView');
+      renderSimilar(STATIC_SIMILAR);
+    }
+
+    // ── Load item from Firestore ───────────────────────────────
+    async function loadItem() {
+      if (!itemId) { showView('errorView'); return; }
+
+      try {
+        const snap = await getDoc(doc(db, 'items', itemId));
+        if (!snap.exists()) { showView('errorView'); return; }
+
+        itemData = { id: snap.id, ...snap.data() };
+
+        // Fetch donor
+        let donor = null;
+        if (itemData.donorId) {
+          const donorSnap = await getDoc(doc(db, 'users', itemData.donorId));
+          if (donorSnap.exists()) donor = donorSnap.data();
+        }
+
+        populatePage(itemData, donor);
+        updateButtonState();
+      } catch (err) {
+        console.error('Failed to load item:', err);
+        showView('errorView');
+      }
+    }
+
+    // ── Check if current user already requested this item ──────
+    async function checkAlreadyRequested(uid) {
+      try {
+        const snap = await getDocs(
+          query(collection(db, 'requests'),
+            where('itemId', '==', itemId),
+            where('recipientId', '==', uid)
+          )
+        );
+        return !snap.empty;
+      } catch { return false; }
+    }
+
+    // ── Check if user has max 3 active requests ────────────────
+    async function countActiveRequests(uid) {
+      try {
+        const snap = await getDocs(
+          query(collection(db, 'requests'),
+            where('recipientId', '==', uid),
+            where('approvalStatus', 'in', ['pending', 'approved'])
+          )
+        );
+        return snap.size;
+      } catch { return 0; }
+    }
+
+    // ── Set button state based on auth + request status ────────
+    async function updateButtonState() {
+      if (!itemData) return;
+
+      // Item not available
+      if (itemData.status && itemData.status !== 'available') {
+        requestBtn.disabled = true;
+        requestBtn.innerHTML = '<i class="bi bi-lock me-2"></i>Item Unavailable';
+        return;
+      }
+
+      if (!currentUser) {
+        // Guest — hide fairness notice
+        document.getElementById('fairnessNotice').classList.add('d-none');
+        requestBtn.disabled = false;
+        requestBtn.innerHTML = '<i class="bi bi-send me-2"></i>Send Request';
+        return;
+      }
+
+      // Show fairness notice for logged-in users
+      const active = await countActiveRequests(currentUser.uid);
+      const fairnessEl = document.getElementById('fairnessNotice');
+      const fairnessText = document.getElementById('fairnessText');
+      fairnessEl.classList.remove('d-none');
+      fairnessText.textContent = `You have ${active} of 3 active requests. To keep GiveNet fair for everyone, request only items you truly need.`;
+
+      // Donor can't request own item
+      if (currentUser.uid === itemData.donorId) {
+        requestBtn.disabled = true;
+        requestBtn.innerHTML = '<i class="bi bi-person-check me-2"></i>Your Listing';
+        return;
+      }
+
+      // Check already requested
+      alreadyRequested = await checkAlreadyRequested(currentUser.uid);
+      if (alreadyRequested) {
+        requestBtn.disabled = true;
+        requestBtn.classList.add('already-requested');
+        requestBtn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Already Requested';
+        return;
+      }
+
+      requestBtn.disabled = false;
+      requestBtn.innerHTML = '<i class="bi bi-send me-2"></i>Send Request';
+    }
+
+    // ── Thumbnail click — swap hero image ──────────────────────
+    document.getElementById('thumbsRow').addEventListener('click', e => {
+      const thumb = e.target.closest('.item-thumb');
+      if (!thumb) return;
+      document.getElementById('heroImg').src = thumb.src;
+      document.querySelectorAll('.item-thumb').forEach(t => t.classList.remove('active'));
+      thumb.classList.add('active');
+    });
+
+    // ── Auth state ─────────────────────────────────────────────
+    onAuthStateChanged(auth, async user => {
+      currentUser = user;
+      if (itemData) await updateButtonState();
+    });
+
+    // ── Request button click ───────────────────────────────────
+    requestBtn.addEventListener('click', async () => {
+      if (!currentUser) {
+        // Save redirect URL and send to signup
+        sessionStorage.setItem('redirectAfterLogin', window.location.href);
+        window.location.href = 'signup.html';
+        return;
+      }
+
+      // Check max active requests
+      const active = await countActiveRequests(currentUser.uid);
+      if (active >= 3) {
+        showToast('You already have 3 active requests. Please wait until one is resolved before requesting more.', 'warning');
+        return;
+      }
+
+      // Open modal
+      requestModal.style.display = '';
+    });
+
+    // ── Close modal ────────────────────────────────────────────
+    function closeModal() { requestModal.style.display = 'none'; }
+    document.getElementById('modalClose').addEventListener('click', closeModal);
+    document.getElementById('cancelBtn').addEventListener('click', closeModal);
+    document.getElementById('modalBackdrop').addEventListener('click', e => {
+      if (e.target === document.getElementById('modalBackdrop')) closeModal();
+    });
+
+    // ── Submit request ─────────────────────────────────────────
+    document.getElementById('sendRequestBtn').addEventListener('click', async () => {
+      if (!currentUser || !itemData) return;
+
+      const sendBtn     = document.getElementById('sendRequestBtn');
+      const sendText    = document.getElementById('sendBtnText');
+      const sendSpinner = document.getElementById('sendBtnSpinner');
+
+      sendBtn.disabled = true;
+      sendText.classList.add('d-none');
+      sendSpinner.classList.remove('d-none');
+
+      try {
+        // Write request document
+        await addDoc(collection(db, 'requests'), {
+          itemId:         itemId,
+          recipientId:    currentUser.uid,
+          donorId:        itemData.donorId || '',
+          message:        document.getElementById('msgInput').value.trim(),
+          pickupDate:     document.getElementById('pickupDate').value,
+          pickupTime:     document.getElementById('pickupTime').value,
+          approvalStatus: 'pending',
+          dateRequested:  serverTimestamp(),
+        });
+
+        // Update item status
+        await updateDoc(doc(db, 'items', itemId), { status: 'requested' });
+
+        closeModal();
+        showToast('Request sent! The donor will review it shortly.', 'success');
+
+        // Update local state
+        itemData.status = 'requested';
+        alreadyRequested = true;
+        applyStatusBadge(document.getElementById('statusBadge'), 'requested');
+        requestBtn.disabled = true;
+        requestBtn.classList.add('already-requested');
+        requestBtn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Already Requested';
+
+        // Update fairness count
+        const newActive = await countActiveRequests(currentUser.uid);
+        document.getElementById('fairnessText').textContent =
+          `You have ${newActive} of 3 active requests. To keep GiveNet fair for everyone, request only items you truly need.`;
+
+      } catch (err) {
+        console.error('Request failed:', err);
+        showToast('Failed to send request. Please try again.', 'error');
+        sendBtn.disabled = false;
+        sendText.classList.remove('d-none');
+        sendSpinner.classList.add('d-none');
+      }
+    });
+
+    // ── Init ───────────────────────────────────────────────────
+    loadItem();
+  </script>
+
+</body>
+</html>
