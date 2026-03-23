@@ -14,8 +14,15 @@
 
   <style>
     /* ── Page shell ─────────────────────────────────────────── */
+    html {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
       background-color: var(--color-secondary);
+      height: 100%;
       min-height: 100vh;
       display: flex;
       align-items: center;
@@ -31,15 +38,15 @@
     }
 
     @media (min-width: 992px) {
-      body { padding: var(--spacing-lg); align-items: stretch; }
+      body { padding: 0; align-items: stretch; height: 100%; }
       .auth-page {
-        min-height: auto;
         max-width: 980px;
         margin: auto;
         border-radius: var(--radius-xl);
         overflow: hidden;
         box-shadow: var(--shadow-xl);
-        min-height: 600px;
+        min-height: 100vh;
+        height: 100vh;
       }
     }
 
@@ -150,6 +157,7 @@
     /* ── Form panel ─────────────────────────────────────────── */
     .auth-form-panel {
       flex: 1;
+      height: 100%;
       background-color: var(--color-white);
       display: flex;
       align-items: center;
