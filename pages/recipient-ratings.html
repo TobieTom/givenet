@@ -88,7 +88,7 @@
     .user-chip-avatar img { width: 100%; height: 100%; object-fit: cover; }
     .user-chip-name  { font-size: var(--text-sm); font-weight: 700; color: var(--text-900); display: block; line-height: 1.2; }
     .user-chip-email { font-size: 10px; color: var(--neutral-400); display: block; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .user-chip .bi-chevron-down { font-size: 0.75rem; color: var(--neutral-400); }
+
 
     /* ── Content ─────────────────────────────────────────────── */
     .gn-content { padding: 28px; flex: 1; background: var(--color-white); }
@@ -242,7 +242,7 @@
       .gn-main { margin-left: 0 !important; }
       .gn-topbar { padding: 0 16px; }
       .gn-content { padding: 20px 16px; }
-      .user-chip-name, .user-chip-email, .user-chip .bi-chevron-down { display: none; }
+      .user-chip-name, .user-chip-email { display: none; }
       .summary-row { grid-template-columns: 1fr; gap: 12px; }
     }
     @media (max-width: 575.98px) {
@@ -312,7 +312,6 @@
             <span class="user-chip-name"  id="userName">—</span>
             <span class="user-chip-email" id="userEmail">—</span>
           </div>
-          <i class="bi bi-chevron-down"></i>
         </div>
       </div>
     </header>
